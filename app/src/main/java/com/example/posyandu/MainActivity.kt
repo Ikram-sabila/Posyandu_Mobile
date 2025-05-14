@@ -26,13 +26,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.posyandu.Navigation.AppNavigation
+import com.example.posyandu.Navigation.RegisterNavHost
 import com.example.posyandu.ui.theme.PosyanduTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+            RegisterNavHost()
         }
     }
 }

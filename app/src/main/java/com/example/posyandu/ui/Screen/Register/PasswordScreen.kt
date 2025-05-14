@@ -1,14 +1,12 @@
 package com.example.posyandu.ui.Screen.Register
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -23,48 +21,49 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Card
 import androidx.compose.ui.draw.clip
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.navigation.NavController
 
 @Composable
-fun RegisterScreen(
+fun PasswordScreen(
     navController: NavController,
     viewModel: RegisterViewModel,
 ) {
-    var email by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var repeatPassword by remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
-    RegisterContent(
-        email = email,
-        onEmailChange = { email = it },
-        name = name,
-        onNameChange = { name = it },
-        phone = phone,
-        onPhoneChange = { phone = it },
+    PasswordContent(
+        password = password,
+        onPasswordChange = { password = it },
+        repeatPassword = repeatPassword,
+        onRepeatPasswordChange = { repeatPassword = it },
         onNext = {
-            coroutineScope.launch{
-                println("Email: $email, Name: $name, Phone: $phone")
-                viewModel.saveRegisterInfo(email, name, phone)
-                delay(100)
-                navController.navigate("password")
+            if (password == repeatPassword) {
+                coroutineScope.launch {
+                    Log.d("TAG", "Calling savePassword with: $password")
+                    viewModel.savePassword(password)
+                    delay(100)
+                    navController.navigate("complete_data")
+                }
+            } else {
+                println("Password dan Repeat Password tidak cocok!")
             }
+            println("Password: $password, Repeat Password: $repeatPassword")
         }
     )
 }
 
 @Composable
-fun RegisterContent(
-    email: String,
-    onEmailChange: (String) -> Unit,
-    name: String,
-    onNameChange: (String) -> Unit,
-    phone: String,
-    onPhoneChange: (String) -> Unit,
-    onNext: () -> Unit = {}
+fun PasswordContent(
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    repeatPassword: String,
+    onRepeatPasswordChange: (String) -> Unit,
+    onNext: () -> Unit = {},
 ) {
     Box (
         modifier = Modifier
@@ -88,14 +87,14 @@ fun RegisterContent(
                 modifier = Modifier.padding(horizontal = 15.dp)
             ){
                 Text(
-                    text = "📞✨ Yuk, mulai dengan data dasar dulu!",
+                    text = "\uD83D\uDD12\uD83D\uDEE1 Bikin Password yang Aman, Yuk!",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color(0xFF013B6D)
                 )
                 Spacer(modifier= Modifier.height(8.dp))
                 Text(
-                    text = "Masukkan info kontak kamu, supaya kami bisa kasih kabar penting dan pengingat jadwal Posyandu langsung ke HP kamu ya! 😊",
+                    text = "Buat password untuk menjaga keamanan akunmu. Pastikan mudah diingat, tapi sulit ditebak ya! ✨ 😊",
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -115,7 +114,7 @@ fun RegisterContent(
                     modifier = Modifier.padding(24.dp)
                 ){
                     Text(
-                        text = "Email",
+                        text = "Password Baru",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color.Black,
@@ -123,24 +122,25 @@ fun RegisterContent(
                     )
 
                     OutlinedTextField(
-                        value = email,
-                        onValueChange = onEmailChange,
+                        value = password,
+                        onValueChange = onPasswordChange,
                         label = {
-                            Text("Email")
+                            Text("Password Baru")
                         },
                         placeholder = {
-                            Text("Contoh: kamu@gmail.com")
+                            Text("Masukkan password baru")
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = "Email")
+                            Icon(Icons.Default.Lock, contentDescription = "Email")
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        visualTransformation = PasswordVisualTransformation()
                     )
                     Spacer(modifier= Modifier.height(16.dp))
 
                     Text(
-                        text = "Nama",
+                        text = "Ulangi Password",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color.Black,
@@ -148,42 +148,48 @@ fun RegisterContent(
                     )
 
                     OutlinedTextField(
-                        value = name,
-                        onValueChange = onNameChange,
+                        value = repeatPassword,
+                        onValueChange = onRepeatPasswordChange,
                         label = {
-                            Text("Username")
+                            Text("Ulangi password")
                         },
                         placeholder = {
-                            Text("Nama lengkap sesuai KTP")
+                            Text("Masukkan password baru")
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = "Nama")
+                            Icon(Icons.Default.Lock, contentDescription = "Nama")
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        visualTransformation = PasswordVisualTransformation()
                     )
-                    Spacer(modifier= Modifier.height(16.dp))
+                    Spacer(modifier= Modifier.height(34.dp))
 
-                    Text(
-                        text = "No. Telp",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
-
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = onPhoneChange,
-                        label = { Text("No. Telp") },
-                        placeholder = { Text("Nomor Aktif") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Phone, contentDescription = "Telepon")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
+//                    when (registerState) {
+//                        is RegisterState.Loading -> {
+//                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+//                        }
+//
+//                        is RegisterState.Success -> {
+//                            Text(
+//                                text = (registerState as RegisterState.Success).message,
+//                                color = Color.Green,
+//                                modifier = Modifier.align(Alignment.CenterHorizontally)
+//                            )
+//                        }
+//
+//                        is RegisterState.Error -> {
+//                            Text(
+//                                text = (registerState as RegisterState.Error).error,
+//                                color = Color.Red,
+//                                modifier = Modifier.align(Alignment.CenterHorizontally)
+//                            )
+//                        }
+//
+//                        else -> {
+//
+//                        }
+//                    }
 
                     Box(
                         modifier = Modifier
@@ -198,7 +204,7 @@ fun RegisterContent(
                             .clickable { onNext() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Selanjutnya", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Simpan", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -208,14 +214,12 @@ fun RegisterContent(
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterPreview() {
-    RegisterContent(
-        email = "",
-        onEmailChange = {},
-        name = "",
-        onNameChange = {},
-        phone = "",
-        onPhoneChange = {},
+fun PasswordPreview() {
+    PasswordContent(
+        password = "",
+        onPasswordChange = {},
+        repeatPassword = "",
+        onRepeatPasswordChange = {},
         onNext = {}
     )
 }
