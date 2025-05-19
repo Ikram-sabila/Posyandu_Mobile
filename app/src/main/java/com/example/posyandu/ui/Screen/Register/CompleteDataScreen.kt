@@ -148,7 +148,8 @@ fun CompleteDataContent(
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                )            ) {
+                )
+            ) {
                 Column (
                     modifier = Modifier.padding(24.dp)
                 ){
