@@ -57,9 +57,12 @@ class RegisterViewModel : ViewModel() {
                 } else {
                     val errorBody = response.errorBody()?.string()
                     val errorCode = response.code()
+                    Log.e("Register", "Gagal register: $errorCode - $errorBody")
+
                     _registerState.value = RegisterState.Error("Register gagal: $errorCode - $errorBody")
                 }
             } catch (e: Exception) {
+                Log.e("Register", "Exception saat register: ${e.message}", e)
                 _registerState.value = RegisterState.Error("Terjadi kesalahan: ${e.message}")
             }
         }

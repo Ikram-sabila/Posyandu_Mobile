@@ -1,5 +1,5 @@
 package com.example.posyandu.Data.Model.Response
 
-data class LoginResnponse (
+class AnggotaKeluargaResponse (
     val message: String
 )

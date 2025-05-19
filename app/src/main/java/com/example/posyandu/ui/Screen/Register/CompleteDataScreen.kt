@@ -82,7 +82,7 @@ fun CompleteDataScreen(
             } else {
                 Log.d("TAG", "Password kosong, tidak bisa register")
             }
-//            navController.navigate("password")
+            navController.navigate("anggota/$no_kk")
         },
         registerState = registerState,
         onSuccessRegister = onSuccessRegister
