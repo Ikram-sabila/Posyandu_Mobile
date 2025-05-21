@@ -1,8 +1,6 @@
 package com.example.posyandu.Data.Model.Request
 
-import java.time.LocalDate
-
-data class RegisterRequest (
+data class RegisterRequest(
     val nama_lengkap: String,
     val email: String,
     val password: String,

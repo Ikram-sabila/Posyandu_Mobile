@@ -92,4 +92,6 @@ dependencies {
     //material icon
     implementation("androidx.compose.material:material-icons-extended:1.5.1")
 
+    // Data Stroe
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }

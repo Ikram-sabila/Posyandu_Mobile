@@ -1,13 +1,10 @@
 package com.example.posyandu.ui.Screen.Profil
 
 import ads_mobile_sdk.h6
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,19 +20,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.posyandu.R
-import androidx.compose.ui.draw.clipPath
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -43,11 +35,16 @@ import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntSize
+import com.example.posyandu.Data.Local.UserPreferences
 
 
 @Composable
 fun ProfilScreen() {
     val context = LocalContext.current
+
+    val nama by UserPreferences.getNama(context = context).collectAsState(initial = "")
+    val email by UserPreferences.getEmail(context = context).collectAsState(initial = "")
+    val no_telp by UserPreferences.getNoTelp(context = context).collectAsState(initial = "")
 
     Column(
         modifier = Modifier
@@ -131,16 +128,18 @@ fun ProfilScreen() {
                 .padding(top = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Lidia Gratia",
-                style = MaterialTheme.typography.h6.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF003049)
+            nama?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF003049)
+                    )
                 )
-            )
+            }
             Text(
-                text = "youremail@domain.com | +01 234 567 89",
-                style = MaterialTheme.typography.body2,
+                text = email + " | " + no_telp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
         }
@@ -169,6 +168,7 @@ fun ProfilScreen() {
 
 @Composable
 fun ProfileMenuItem(icon: ImageVector, text: String) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,7 +186,7 @@ fun ProfileMenuItem(icon: ImageVector, text: String) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = text,
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF003049)
         )
     }

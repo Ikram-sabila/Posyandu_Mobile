@@ -10,7 +10,7 @@ data class WargaData(
     val id: Int,
     val nama_lengkap: String,
     val email: String,
-    val no_telp: String?,
+    val no_telp: String,
     val anggota_keluarga_nik: String,
-    val keluarga_no_kk: String
+    val keluarga_no_kk: String,
 )

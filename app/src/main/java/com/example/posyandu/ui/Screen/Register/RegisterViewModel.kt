@@ -3,13 +3,13 @@ package com.example.posyandu.ui.Screen.Register
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.posyandu.Data.Model.Request.JenisKelamin
 import com.example.posyandu.Data.Model.Request.RegisterRequest
 import com.example.posyandu.Data.Remote.Client.ApiClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import javax.inject.Inject
 
 class RegisterViewModel : ViewModel() {
     var email: String = ""
@@ -20,7 +20,7 @@ class RegisterViewModel : ViewModel() {
 
     var nik: String = ""
     var no_kk: String = ""
-    var jenisKelamin: String = ""
+    lateinit var jenisKelamin: JenisKelamin
     var tanggalLahir: String = ""
 
     private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Idle)
@@ -37,7 +37,7 @@ class RegisterViewModel : ViewModel() {
         this.password = password
     }
 
-    fun saveCompleteData(nik: String, no_kk: String, jenisKelamin: String, tanggalLahir: LocalDate) {
+    fun saveCompleteData(nik: String, no_kk: String, jenisKelamin: JenisKelamin, tanggalLahir: LocalDate) {
         this.nik = nik
         this.no_kk = no_kk
         this.jenisKelamin = jenisKelamin
@@ -50,7 +50,7 @@ class RegisterViewModel : ViewModel() {
 
             try {
                 val response = ApiClient.apiService.registerWarga(
-                    RegisterRequest(name, email, password, phone, nik, no_kk, jenisKelamin, tanggalLahir)
+                    RegisterRequest(name, email, password, phone, nik, no_kk, jenisKelamin.value, tanggalLahir)
                 )
                 if (response.isSuccessful) {
                     _registerState.value = RegisterState.Success("Register Berhasil")

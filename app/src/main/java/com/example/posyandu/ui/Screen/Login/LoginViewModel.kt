@@ -1,9 +1,11 @@
 package com.example.posyandu.ui.Screen.Login
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Request.LoginRequest
 import com.example.posyandu.Data.Model.Response.WargaData
 import com.example.posyandu.Data.Remote.Client.ApiClient
@@ -18,7 +20,7 @@ class LoginViewModel : ViewModel() {
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
 
-    fun login() {
+    fun login(context: Context) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
 
@@ -30,16 +32,39 @@ class LoginViewModel : ViewModel() {
                     val loginResponse = response.body()
                     if (loginResponse != null) {
                         val user = loginResponse.user
-                        if (user != null) {
-                            _loginState.value = LoginState.Success(
-                                token = loginResponse.access_token,
-                                user = user
-                            )
-                        } else {
+                        Log.d("LoginResponse", "Body: $loginResponse")
+                        Log.d("LoginResponse", "User from response: $user")
+
+                        if (user == null) {
+                            Log.e("LoginViewModel", "User null di response")
                             _loginState.value = LoginState.Error("Data user kosong")
+                            return@launch // keluar dari coroutine
                         }
+
+                        // Simpan data user ke preferences
+                        UserPreferences.saveUserData(
+                            context = context,
+                            token = "Bearer ${loginResponse.access_token}",
+                            nik = user.anggota_keluarga_nik,
+                            noKK = user.keluarga_no_kk,
+                            userId = user.id,
+                            email = user.email,
+                            no_telp = user.no_telp,
+                            nama = user.nama_lengkap
+                        )
+
+                        Log.d("LoginViewModel", "Disimpan ke preferences:")
+                        Log.d("LoginViewModel", "Token: Bearer ${loginResponse.access_token}")
+                        Log.d("LoginViewModel", "NIK: ${user.anggota_keluarga_nik}")
+                        Log.d("LoginViewModel", "No KK: ${user.keluarga_no_kk}")
+                        Log.d("LoginViewModel", "User ID: ${user.id}")
+
+                        _loginState.value = LoginState.Success(
+                            token = loginResponse.access_token,
+                            user = user
+                        )
                     } else {
-                        _loginState.value = LoginState.Error("Response kosong")
+                        _loginState.value = LoginState.Error("Response kosong dari server")
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()

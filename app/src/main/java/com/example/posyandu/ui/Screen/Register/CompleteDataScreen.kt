@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.posyandu.Data.Model.Request.JenisKelamin
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.customView
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -47,8 +48,9 @@ fun CompleteDataScreen(
 ) {
     var nik by remember { mutableStateOf("") }
     var no_kk by remember { mutableStateOf("") }
-    var jenisKelamin by remember { mutableStateOf("") }
+//    var jenisKelamin by remember { mutableStateOf("") }
     var tanggalLahir by remember { mutableStateOf(LocalDate.now()) }
+    var jenisKelamin by remember { mutableStateOf<JenisKelamin?>(null) }
 
     val formattedDate by remember {
         derivedStateOf {
@@ -73,7 +75,7 @@ fun CompleteDataScreen(
         onTanggalLahir = { tanggalLahir = it },
         onNext = {
             Log.d("TAG", "Simpan klik, data: nik=$nik, no_kk=$no_kk, jenisKelamin=$jenisKelamin, tanggalLahir=$tanggalLahir")
-            viewModel.saveCompleteData(nik, no_kk, jenisKelamin, tanggalLahir)
+            jenisKelamin?.let { viewModel.saveCompleteData(nik, no_kk, it, tanggalLahir) }
 
             Log.d("Tag", password)
             if (password.isNotEmpty()) {
@@ -96,8 +98,8 @@ fun CompleteDataContent(
     onNikChange: (String) -> Unit,
     no_kk: String,
     onNo_kk: (String) -> Unit,
-    jenisKelamin: String,
-    onJenisKelamin: (String) -> Unit,
+    jenisKelamin: JenisKelamin?,
+    onJenisKelamin: (JenisKelamin) -> Unit,
     tanggalLahir: LocalDate,
     onTanggalLahir: (LocalDate) -> Unit,
     registerState: RegisterState,
@@ -203,29 +205,85 @@ fun CompleteDataContent(
                     )
                     Spacer(modifier= Modifier.height(16.dp))
 
+//                    Text(
+//                        text = "Jenis Kelamin",
+//                        fontWeight = FontWeight.Bold,
+//                        fontSize = 18.sp,
+//                        color = Color.Black,
+//                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
+//                    )
+//
+//                    OutlinedTextField(
+//                        value = jenisKelamin,
+//                        onValueChange = onJenisKelamin,
+//                        label = {
+//                            Text("Jenis Kelamin")
+//                        },
+//                        placeholder = {
+//                            Text("Contoh: Perempuan")
+//                        },
+//                        leadingIcon = {
+//                            Icon(Icons.Default.Lock, contentDescription = "Nama")
+//                        },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        shape = RoundedCornerShape(16.dp),
+//                    )
                     Text(
                         text = "Jenis Kelamin",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
+                        modifier = Modifier.padding(start = 8.dp, top = 8.dp)
                     )
 
-                    OutlinedTextField(
-                        value = jenisKelamin,
-                        onValueChange = onJenisKelamin,
-                        label = {
-                            Text("Jenis Kelamin")
-                        },
-                        placeholder = {
-                            Text("Contoh: Perempuan")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "Nama")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                    )
+                    var expanded by remember { mutableStateOf(false) }
+                    val options = listOf("Laki-laki", "Perempuan")
+                    var selectedOptionText by remember {
+                        mutableStateOf(jenisKelamin?.let {
+                            if (it == JenisKelamin.LAKI) "Laki-laki" else "Perempuan"
+                        } ?: "")
+                    }
+
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+                        TextField(
+                            value = selectedOptionText,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Jenis Kelamin") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor = Color.White
+                            )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            options.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    text = { Text(selectionOption) },
+                                    onClick = {
+                                        selectedOptionText = selectionOption
+                                        expanded = false
+                                        val jenisKelaminEnum = when (selectionOption) {
+                                            "Laki-laki" -> JenisKelamin.LAKI
+                                            "Perempuan" -> JenisKelamin.PEREMPUAN
+                                            else -> null
+                                        }
+                                        jenisKelaminEnum?.let { onJenisKelamin(it) }
+                                    }
+                                )
+                            }
+                        }
+                    }
+
                     Spacer(modifier= Modifier.height(16.dp))
 
                     Text(
@@ -302,7 +360,7 @@ fun CompleteDataContent(
                             )
                             .clickable {
                                 Log.d("TAG", "Tombol Simpan diklik")
-                                if (nik.isBlank() || jenisKelamin.isBlank()) {
+                                if (nik.isBlank() || jenisKelamin == null) {
                                     Log.d("NIK", nik)
                                     Toast.makeText(context, "Semua field harus diisi!", Toast.LENGTH_SHORT).show()
                                 } else {
@@ -344,7 +402,7 @@ fun CompleteDataPreview() {
         onNikChange = {},
         no_kk = "",
         onNo_kk = {},
-        jenisKelamin = "",
+        jenisKelamin = null,
         onJenisKelamin = {},
         tanggalLahir = LocalDate.now(),
         onTanggalLahir = {},
