@@ -94,4 +94,8 @@ dependencies {
 
     // Data Stroe
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    //material 3
+    implementation("androidx.compose.material3:material3:1.2.0")
+
 }
