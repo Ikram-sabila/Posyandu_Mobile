@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import java.io.Serializable
 
 @Composable
 fun SectionTitle(title: String) {
@@ -35,7 +36,7 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun GridData(data: List<Pair<String, String>>, columns: Int = 2) {
+fun GridData(data: List<Pair<String, String>>, columns: Int = 2){
     Column {
         data.chunked(columns).forEach { row ->
             Row(modifier = Modifier.fillMaxWidth()) {

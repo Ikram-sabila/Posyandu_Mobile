@@ -1,5 +1,6 @@
 package com.example.posyandu.ui.Screen.Login
 
+import android.content.Context
 import com.example.posyandu.ui.Screen.Login.LoginViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Card
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 @Composable
@@ -36,10 +38,11 @@ fun LoginScreen(
     val password by viewModel.password
 
     val loginState by viewModel.loginState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("password") {
+            navController.navigate("portal-periksa") {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -51,7 +54,7 @@ fun LoginScreen(
         password = password,
         onPasswordChange = { viewModel.password.value = it },
         onNext = {
-            viewModel.login()
+            viewModel.login(context)
         }
     )
 
