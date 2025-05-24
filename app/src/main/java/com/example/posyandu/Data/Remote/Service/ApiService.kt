@@ -2,14 +2,20 @@ package com.example.posyandu.Data.Remote.Service
 
 import androidx.compose.runtime.MutableState
 import com.example.posyandu.Data.Model.Request.AnggotaKeluargaRequest
+import com.example.posyandu.Data.Model.Request.DaftarAntrianRequest
 import com.example.posyandu.Data.Model.Request.LoginRequest
 import com.example.posyandu.Data.Model.Request.RegisterRequest
+import com.example.posyandu.Data.Model.Response.AnggotaBeritaResponse
 import com.example.posyandu.Data.Model.Response.AnggotaResponse
+import com.example.posyandu.Data.Model.Response.AnggotaTerdaftarResponse
+import com.example.posyandu.Data.Model.Response.Antrian
+import com.example.posyandu.Data.Model.Response.BeritaDetailResponse
+import com.example.posyandu.Data.Model.Response.DaftarAntrianResponse
 import com.example.posyandu.Data.Model.Response.LoginResponse
 import com.example.posyandu.Data.Model.Response.PemeriksaanResponse
+import com.example.posyandu.Data.Model.Response.PortalBeritaResponse
 import com.example.posyandu.Data.Model.Response.PortalPeriksaResponse
 import com.example.posyandu.Data.Model.Response.RegisterResponse
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -48,4 +54,46 @@ interface ApiService {
         @Path("id") id: Int,
         @Header("Accept") accept: String = "application/json"
     ): PemeriksaanResponse
+
+    @GET("api/auth/warga/berita/{no_kk}")
+    suspend fun getBerita(
+        @Header("Authorization") Bearer: String,
+        @Path("no_kk") id: String?,
+        @Header("Accept") accept: String = "application/json"
+    ): PortalBeritaResponse
+
+    @GET("api/auth/warga/berita-detail/{berita_id}")
+    suspend fun getBeritaDetail(
+        @Header("Authorization") Bearer: String,
+        @Path("berita_id") id: Int,
+        @Header("Accept") accept: String = "application/json"
+    ): BeritaDetailResponse
+
+    @GET("api/auth/warga/berita-antrian/{berita_id}")
+    suspend fun getBeritaAntrian(
+        @Header("Authorization") Bearer: String,
+        @Path("berita_id") id: Int,
+        @Header("Accept") accept: String = "application/json"
+    ): Antrian
+
+    @POST("api/auth/warga/berita-daftar")
+    suspend fun daftarAntrian(
+        @Header("Authorization") Bearer: String,
+        @Body request: DaftarAntrianRequest
+    ): DaftarAntrianResponse
+
+    @GET("api/auth/warga/berita-anggota/{no_kk}")
+    suspend fun getAnggotaBerita(
+        @Header("Authorization") Bearer: String,
+        @Path("no_kk") id: String?,
+        @Header("Accept") accept: String = "application/json"
+    ): AnggotaBeritaResponse
+
+    @GET("api/auth/warga/berita-detail/{acara_id}/{warga_id}")
+    suspend fun getAnggotaTerdaftar(
+        @Header("Authorization") Bearer: String,
+        @Path("acara_id") acaraId: Int?,
+        @Path("warga_id") wargaId: Int?,
+        @Header("Accept") accept: String = "application/json"
+    ): AnggotaTerdaftarResponse
 }

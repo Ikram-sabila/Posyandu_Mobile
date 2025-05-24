@@ -18,10 +18,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
 fun DetailAntrianScreen(
-    nomorAntrian: Int = 30,
+    navController: NavController,
+    nomorAntrian: Int,
 ) {
     Column(
         modifier = Modifier
@@ -35,7 +37,7 @@ fun DetailAntrianScreen(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Kembali",
-                modifier = Modifier.clickable { /* back navigation */ }
+                modifier = Modifier.clickable { navController.popBackStack() }
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Konfirmasi Pendaftaran", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -43,7 +45,6 @@ fun DetailAntrianScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Card Nomor Antrian
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -88,7 +89,5 @@ fun DetailAntrianScreen(
 @Preview(showBackground = true)
 @Composable
 fun DetailAntrianPreview() {
-    DetailAntrianScreen(
-        nomorAntrian = 30,
-    )
+//    DetailAntrianScreen()
 }

@@ -15,6 +15,13 @@ import com.example.posyandu.Data.Remote.Repository.PortalPeriksa.PortalPeriksaRe
 import com.example.posyandu.ui.Screen.AnggotaKeluarga.AnggotaKeluargaScreen
 import com.example.posyandu.ui.Screen.AnggotaKeluarga.AnggotaKeluargaViewModel
 import com.example.posyandu.ui.Screen.AnggotaKeluarga.CompleteAnggotaKeluargaScreen
+import com.example.posyandu.ui.Screen.Berita.DetailAntrianScreen
+import com.example.posyandu.ui.Screen.Berita.DetailBeritaScreen
+import com.example.posyandu.ui.Screen.Berita.KonfirmasiPendaftaranScreen
+import com.example.posyandu.ui.Screen.Berita.PortalBeritaRepository
+import com.example.posyandu.ui.Screen.Berita.PortalBeritaScreen
+import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
+import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModelFactory
 import com.example.posyandu.ui.Screen.Login.LoginScreen
 import com.example.posyandu.ui.Screen.Login.LoginViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PemeriksaanBalitaScreen
@@ -101,6 +108,42 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
 
             val viewModel: PortalPeriksaViewModel = viewModel(factory = factory)
             PemeriksaanBalitaScreen(viewModel =viewModel , pemeriksaanId = id)
+        }
+        composable("berita") {
+            val repository = PortalBeritaRepository()
+            val factory = PortalBeritaViewModelFactory(repository)
+            val viewModel: PortalBeritaViewModel = viewModel(factory = factory)
+            PortalBeritaScreen(navController, viewModel = viewModel)
+        }
+        composable(
+            "berita-detail/{id}",
+            arguments = listOf( navArgument("id") { type = NavType.IntType })
+        ) {backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+
+            val repository = PortalBeritaRepository()
+            val factory = PortalBeritaViewModelFactory(repository)
+            val viewModel: PortalBeritaViewModel = viewModel(factory = factory)
+            DetailBeritaScreen(navController, viewModel = viewModel, id)
+        }
+        composable(
+            "antrian/{id}",
+            arguments = listOf( navArgument("id") { type = NavType.IntType } )
+        ) {backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+
+            val repository = PortalBeritaRepository()
+            val factory = PortalBeritaViewModelFactory(repository)
+            val viewModel: PortalBeritaViewModel = viewModel(factory = factory)
+            KonfirmasiPendaftaranScreen(navController, viewModel = viewModel, id)
+        }
+        composable(
+            "detail_antrian/{nomor-antrian}",
+             arguments = listOf( navArgument("nomor-antrian") { type = NavType.IntType } )
+        ) { backStackEntry ->
+            val nomorAntrian = backStackEntry.arguments?.getInt("nomor-antrian") ?: 0
+
+            DetailAntrianScreen(navController, nomorAntrian)
         }
     }
 }
