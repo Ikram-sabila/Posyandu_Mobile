@@ -27,13 +27,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.posyandu.Navigation.MainNavHost
 import com.example.posyandu.Navigation.AppNavigation
+import com.example.posyandu.ui.Screen.Profile.FAQScreen
+import com.example.posyandu.ui.Screen.Profile.HelpDeskScreen
 import com.example.posyandu.ui.theme.PosyanduTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainNavHost()
+            HelpDeskScreen()
         }
     }
 }
