@@ -11,15 +11,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -117,15 +120,15 @@ fun ProfilScreen() {
                             .background(Color.White)
                             .border(2.dp, Color.White, CircleShape)
                     )
-//                    Icon(
-//                        imageVector = Icons.Default.Edit,
-//                        contentDescription = "Edit",
-//                        modifier = Modifier
-//                            .size(24.dp)
-//                            .background(Color.White, CircleShape)
-//                            .padding(3.dp)
-//                            .offset(x = 0.dp, y = (-1).dp)
-//                    )
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(Color.White, CircleShape)
+                            .padding(3.dp)
+                            .offset(x = 0.dp, y = (-1).dp)
+                    )
                 }
             }
         }
@@ -185,12 +188,12 @@ fun ProfileMenuItem(icon: ImageVector, text: String) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-//        Icon(
-//            imageVector = icon,
-//            contentDescription = null,
-//            tint = Color(0xFF08607A),
-//            modifier = Modifier.size(24.dp)
-//        )
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF08607A),
+            modifier = Modifier.size(24.dp)
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = text,
@@ -200,6 +203,7 @@ fun ProfileMenuItem(icon: ImageVector, text: String) {
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

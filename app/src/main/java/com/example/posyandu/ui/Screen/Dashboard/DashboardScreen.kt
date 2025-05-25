@@ -4,6 +4,7 @@ package com.example.posyandu.ui.Screen.Dashboard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -93,58 +94,67 @@ fun DashboardScreen() {
 
 @Composable
 fun HeaderSection() {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(15.dp)) // rounded semua sisi
     ) {
-        // Gambar di atas box
+        // Background image
         Image(
-            painter = painterResource(id = R.drawable.headertekstur), // Ganti dengan gambar kamu
+            painter = painterResource(id = R.drawable.headertekstur),
             contentDescription = "Banner",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
+            modifier = Modifier.fillMaxSize()
         )
 
-        // Box berwarna dengan rounded corner bawah
-        Column(
+        // Overlay gradasi
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp)) // Tambahkan ini
+                .fillMaxSize()
                 .background(
-                    brush = Brush.verticalGradient(
+                    Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF08607A),
+                            Color(0xCC08607A), // lebih gelap & transparan
                             Color(0xFF84BBD1)
                         )
                     )
                 )
                 .padding(16.dp)
-        ){
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.avatar_woman),
-                            contentDescription = "User Avatar",
-                            modifier = Modifier
-                                .size(60.dp)
-                                .clip(CircleShape)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text("Hallo Rose", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                            Text("Selamat Datang di PosyanduCare!", fontSize = 14.sp)
-                            Text(
-                                "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.avatar_woman),
+                    contentDescription = "User Avatar",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = "Hallo Rose",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Selamat Datang di PosyanduCare!",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
+                        fontSize = 12.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
                 }
+            }
+        }
     }
 }
+
 
 
 @Composable
