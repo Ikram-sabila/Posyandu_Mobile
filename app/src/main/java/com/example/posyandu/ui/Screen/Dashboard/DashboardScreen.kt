@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,30 +66,86 @@ fun DashboardScreen() {
     }
 }
 
+//@Composable
+//fun HeaderSection() {
+//    Row(
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Image(
+//            painter = painterResource(id = R.drawable.avatar_woman),
+//            contentDescription = "User Avatar",
+//            modifier = Modifier
+//                .size(60.dp)
+//                .clip(CircleShape)
+//        )
+//        Spacer(modifier = Modifier.width(12.dp))
+//        Column {
+//            Text("Hallo Rose", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//            Text("Selamat Datang di PosyanduCare!", fontSize = 14.sp)
+//            Text(
+//                "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
+//                fontSize = 12.sp,
+//                color = Color.Gray
+//            )
+//        }
+//    }
+//}
+
 @Composable
 fun HeaderSection() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
+        // Gambar di atas box
         Image(
-            painter = painterResource(id = R.drawable.avatar_woman),
-            contentDescription = "User Avatar",
+            painter = painterResource(id = R.drawable.headertekstur), // Ganti dengan gambar kamu
+            contentDescription = "Banner",
             modifier = Modifier
-                .size(60.dp)
-                .clip(CircleShape)
+                .fillMaxWidth()
+                .height(180.dp)
         )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text("Hallo Rose", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text("Selamat Datang di PosyanduCare!", fontSize = 14.sp)
-            Text(
-                "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
-        }
+
+        // Box berwarna dengan rounded corner bawah
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp)) // Tambahkan ini
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF08607A),
+                            Color(0xFF84BBD1)
+                        )
+                    )
+                )
+                .padding(16.dp)
+        ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.avatar_woman),
+                            contentDescription = "User Avatar",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(CircleShape)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text("Hallo Rose", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text("Selamat Datang di PosyanduCare!", fontSize = 14.sp)
+                            Text(
+                                "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
     }
 }
+
 
 @Composable
 fun MenuSection() {
@@ -114,7 +171,7 @@ fun MenuSection() {
             R.drawable.ekms,
             "E-KMS",
             modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFFFE4E9) // Hijau muda
+            backgroundColor = Color(0xFFFFE4E9) // Pink muda
         )
     }
 }
