@@ -1,6 +1,5 @@
-package com.example.posyandu.ui.Screen.Profil
+package com.example.posyandu.ui.Screen.Profile
 
-import ads_mobile_sdk.h6
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import com.example.posyandu.R
+import androidx.compose.foundation.clickable
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -35,11 +34,12 @@ import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntSize
+import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 
 
 @Composable
-fun ProfilScreen() {
+fun ProfilScreen(navController: NavController) {
     val context = LocalContext.current
 
     val nama by UserPreferences.getNama(context = context).collectAsState(initial = "")
@@ -150,30 +150,38 @@ fun ProfilScreen() {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             ProfileMenuItem(
                 icon = Icons.Default.Person,
-                text = "Edit informasi profil"
+                text = "Edit informasi profil",
+                onClick = {
+                    navController.navigate("edit-profile")
+                }
             )
             Spacer(modifier = Modifier.height(12.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Lock,
-                text = "Pengaturan Akun"
+                text = "Pengaturan Akun",
+                onClick = {
+                    navController.navigate("pengaturan")
+                }
             )
             Spacer(modifier = Modifier.height(24.dp))
             ProfileMenuItem(
                 icon = Icons.Default.ExitToApp,
-                text = "Keluar"
+                text = "Keluar",
+                onClick = {}
             )
         }
     }
 }
 
 @Composable
-fun ProfileMenuItem(icon: ImageVector, text: String) {
+fun ProfileMenuItem(icon: ImageVector, text: String, onClick: () -> Unit) {
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFF8F9FA))
+            .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -196,5 +204,5 @@ fun ProfileMenuItem(icon: ImageVector, text: String) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfilScreen() {
-    ProfilScreen()
+//    ProfilScreen()
 }

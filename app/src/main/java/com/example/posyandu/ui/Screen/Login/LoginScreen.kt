@@ -42,7 +42,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("berita") {
+            navController.navigate("profil") {
                 popUpTo("login") { inclusive = true }
             }
         }
