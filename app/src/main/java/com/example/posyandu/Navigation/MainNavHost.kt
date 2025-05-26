@@ -29,6 +29,14 @@ import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaScreen
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModelFactory
 import com.example.posyandu.ui.Screen.PortalPeriksa.RiwayatPemeriksaanScreen
+import com.example.posyandu.ui.Screen.Profile.EditProfileScreen
+import com.example.posyandu.ui.Screen.Profile.PengaturanScreen
+import com.example.posyandu.ui.Screen.Profile.ProfilScreen
+import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
+import com.example.posyandu.ui.Screen.Profile.ProfileRepository
+import com.example.posyandu.ui.Screen.Profile.ProfileViewModelFactory
+import com.example.posyandu.ui.Screen.Profile.UbahEmailScreen
+import com.example.posyandu.ui.Screen.Profile.UbahPasswordScreen
 import com.example.posyandu.ui.Screen.Register.CompleteDataScreen
 import com.example.posyandu.ui.Screen.Register.PasswordScreen
 import com.example.posyandu.ui.Screen.Register.RegisterScreen
@@ -144,6 +152,30 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             val nomorAntrian = backStackEntry.arguments?.getInt("nomor-antrian") ?: 0
 
             DetailAntrianScreen(navController, nomorAntrian)
+        }
+        composable("profil") {
+            ProfilScreen(navController)
+        }
+        composable("edit-profile") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            EditProfileScreen(viewModel = viewModel)
+        }
+        composable("pengaturan") {
+            PengaturanScreen(navController)
+        }
+        composable("edit-email") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            UbahEmailScreen(navController, viewModel = viewModel)
+        }
+        composable("Update-Password") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            UbahPasswordScreen(navController, viewModel)
         }
     }
 }
