@@ -257,8 +257,10 @@ fun CompleteDataContent(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                             },
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.White
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White
                             )
                         )
 
