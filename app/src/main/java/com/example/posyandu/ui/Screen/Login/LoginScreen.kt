@@ -45,7 +45,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("profil") {
+            navController.navigate("riwayat-ekms") {
                 popUpTo("login") { inclusive = true }
             }
         }

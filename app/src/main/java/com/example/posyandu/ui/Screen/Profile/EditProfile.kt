@@ -197,9 +197,12 @@ fun EditProfileScreen(
                             .fillMaxWidth()
                             .background(Color(0xFFF1F1F1), shape = RoundedCornerShape(16.dp)),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            disabledContainerColor = Color.White
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color(0xFFF1F1F1),
+                            unfocusedContainerColor = Color(0xFFF1F1F1),
+                            disabledContainerColor = Color(0xFFF1F1F1)
                         ),
                         shape = RoundedCornerShape(16.dp)
                     )
@@ -307,9 +310,12 @@ fun CustomFormField(
                 .fillMaxWidth()
                 .background(Color(0xFFF1F1F1), shape = RoundedCornerShape(16.dp)),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFF1F1F1),
+                unfocusedContainerColor = Color(0xFFF1F1F1),
+                disabledContainerColor = Color(0xFFF1F1F1)
             )
         )
     }

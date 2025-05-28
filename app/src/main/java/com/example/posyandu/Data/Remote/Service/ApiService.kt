@@ -14,9 +14,11 @@ import com.example.posyandu.Data.Model.Response.AnggotaTerdaftarResponse
 import com.example.posyandu.Data.Model.Response.Antrian
 import com.example.posyandu.Data.Model.Response.BeritaDetailResponse
 import com.example.posyandu.Data.Model.Response.DaftarAntrianResponse
+import com.example.posyandu.Data.Model.Response.DataResponse
 import com.example.posyandu.Data.Model.Response.LoginResponse
 import com.example.posyandu.Data.Model.Response.PemeriksaanResponse
 import com.example.posyandu.Data.Model.Response.PortalBeritaResponse
+import com.example.posyandu.Data.Model.Response.PortalEkmsResponse
 import com.example.posyandu.Data.Model.Response.PortalPeriksaResponse
 import com.example.posyandu.Data.Model.Response.PortalProfileResponse
 import com.example.posyandu.Data.Model.Response.RegisterResponse
@@ -133,4 +135,27 @@ interface ApiService {
         @Body body: UpdatePasswordRequest,
         @Header("Accept") accept: String = "application/json"
     ): Response<UpdatePasswordResponse>
+
+    @GET("api/auth/warga/ekms/data/{nik}/{definisi}")
+    suspend fun getEkms(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Path("definisi") definisi: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<DataResponse>
+
+    @GET("api/auth/warga/ekms/data-diri/{nik}")
+    suspend fun getDataDiriEkms(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<PortalEkmsResponse>
+
+    @GET("api/auth/warga/ekms/data/{nik}")
+    suspend fun getPerkembangan(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<DataResponse>
+
 }
