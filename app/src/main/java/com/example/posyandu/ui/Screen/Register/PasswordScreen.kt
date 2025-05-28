@@ -2,27 +2,45 @@ package com.example.posyandu.ui.Screen.Register
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Card
-import androidx.compose.ui.draw.clip
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.posyandu.ui.Screen.components.HeaderBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -33,7 +51,6 @@ fun PasswordScreen(
 ) {
     var password by remember { mutableStateOf("") }
     var repeatPassword by remember { mutableStateOf("") }
-
     val coroutineScope = rememberCoroutineScope()
 
     PasswordContent(
@@ -52,10 +69,28 @@ fun PasswordScreen(
             } else {
                 println("Password dan Repeat Password tidak cocok!")
             }
-            println("Password: $password, Repeat Password: $repeatPassword")
         }
     )
 }
+
+@Composable
+fun PasswordHeader() {
+    HeaderBackground {
+        Text(
+            text = "Bikin Password yang Aman",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Gunakan kombinasi huruf, angka, dan simbol untuk meningkatkan perlindungan.",
+            fontSize = 14.sp,
+            color = Color.White
+        )
+    }
+}
+
 
 @Composable
 fun PasswordContent(
@@ -63,152 +98,108 @@ fun PasswordContent(
     onPasswordChange: (String) -> Unit,
     repeatPassword: String,
     onRepeatPasswordChange: (String) -> Unit,
-    onNext: () -> Unit = {},
+    onNext: () -> Unit
 ) {
-    Box (
+    PasswordHeader()
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFEAF6FF), Color(0xFFCCE9FF)),
-                    startY = 0f,
-                    endY = 400f
-                )
-            )
-    ){
-        Column(
+            .padding(top = 170.dp)
+    ) {
+        Card(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 100.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            Column (
-                modifier = Modifier.padding(horizontal = 15.dp)
-            ){
-                Text(
-                    text = "\uD83D\uDD12\uD83D\uDEE1 Bikin Password yang Aman, Yuk!",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF013B6D)
-                )
-                Spacer(modifier= Modifier.height(8.dp))
-                Text(
-                    text = "Buat password untuk menjaga keamanan akunmu. Pastikan mudah diingat, tapi sulit ditebak ya! ✨ 😊",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            }
-            Spacer(modifier= Modifier.height(24.dp))
-
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )            ) {
-                Column (
-                    modifier = Modifier.padding(24.dp)
-                ){
-                    Text(
-                        text = "Password Baru",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+                    .padding(24.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FormInput(
+                    label = "Password Baru",
+                    value = password,
+                    onValueChange = onPasswordChange,
+                    placeholder = "Masukkan password baru",
+                    trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Password") },
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
+                )
 
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = onPasswordChange,
-                        label = {
-                            Text("Password Baru")
-                        },
-                        placeholder = {
-                            Text("Masukkan password baru")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "Email")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                    Spacer(modifier= Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Ulangi Password",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+                FormInput(
+                    label = "Ulangi Password",
+                    value = repeatPassword,
+                    onValueChange = onRepeatPasswordChange,
+                    placeholder = "Ulangi password",
+                    trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Repeat Password") },
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
+                )
 
-                    OutlinedTextField(
-                        value = repeatPassword,
-                        onValueChange = onRepeatPasswordChange,
-                        label = {
-                            Text("Ulangi password")
-                        },
-                        placeholder = {
-                            Text("Masukkan password baru")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "Nama")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                    Spacer(modifier= Modifier.height(34.dp))
+                Spacer(modifier = Modifier.height(34.dp))
 
-//                    when (registerState) {
-//                        is RegisterState.Loading -> {
-//                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-//                        }
-//
-//                        is RegisterState.Success -> {
-//                            Text(
-//                                text = (registerState as RegisterState.Success).message,
-//                                color = Color.Green,
-//                                modifier = Modifier.align(Alignment.CenterHorizontally)
-//                            )
-//                        }
-//
-//                        is RegisterState.Error -> {
-//                            Text(
-//                                text = (registerState as RegisterState.Error).error,
-//                                color = Color.Red,
-//                                modifier = Modifier.align(Alignment.CenterHorizontally)
-//                            )
-//                        }
-//
-//                        else -> {
-//
-//                        }
-//                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(
-                                Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-                                )
-                            )
-                            .clickable { onNext() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Simpan", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                Button(
+                    onClick = onNext,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005F6B)),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Simpan", color = Color.White)
                 }
             }
         }
+    }
+}
+
+
+//ui form input
+@Composable
+fun FormInput(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder, color = Color.Gray) },
+            trailingIcon = trailingIcon,
+            readOnly = readOnly,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            singleLine = true,
+            visualTransformation = visualTransformation,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF1F1F1), shape = RoundedCornerShape(16.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFF1F1F1),
+                unfocusedContainerColor = Color(0xFFF1F1F1),
+                disabledContainerColor = Color(0xFFF1F1F1)
+            )
+        )
     }
 }
 

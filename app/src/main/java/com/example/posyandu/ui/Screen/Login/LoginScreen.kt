@@ -1,33 +1,53 @@
 package com.example.posyandu.ui.Screen.Login
 
-import android.content.Context
-import com.example.posyandu.ui.Screen.Login.LoginViewModel
+//import androidx.compose.material3.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Card
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.posyandu.R
+import com.example.posyandu.ui.Screen.Register.FormInput
 
 @Composable
 fun LoginScreen(
@@ -39,6 +59,14 @@ fun LoginScreen(
 
     val loginState by viewModel.loginState.collectAsState()
     val context = LocalContext.current
+
+    // Background Image dipisah dari Modifier dan berada sebagai children pertama di Box
+    Image(
+        painter = painterResource(id = R.drawable.background),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxSize()
+    )
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
@@ -80,124 +108,167 @@ fun LoginContent(
     onPasswordChange: (String) -> Unit,
     onNext: () -> Unit = {}
 ) {
-    Box (
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFEAF6FF), Color(0xFFCCE9FF)),
-                    startY = 0f,
-                    endY = 400f
-                )
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Logo dan Judul
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo PosyanduCare",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(50.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "PosyanduCare",
+            color = Color(0xFF005F6B),
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
             )
-    ){
-        Column(
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Selamat Datang Kembali!",
+            color = Color(0xFF005F6B),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Silakan lengkapi formulir berikut untuk masuk",
+            color = Color(0xFF7D7F81),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp
+            ),
+            textAlign = TextAlign.Center
+            //  modifier = Modifier.align(Alignment.CenterHorizontally)  // optional
+        )
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        CustomFormField(
+            label = "Email",
+            value = email,
+            onValueChange = onEmailChange,
+            placeholder = "Masukkan Email Anda",
+            trailingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Password
+        FormInput(
+            label = "Password",
+            value = password,
+            onValueChange = onPasswordChange,
+            placeholder = "Masukkan password Anda",
+            trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Password") },
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
+        )
+
+
+//        TextField(
+//            value = password,
+//            onValueChange = onPasswordChange,
+//            label = { Text("Password") },
+//            placeholder = { Text("Kata sandi") },
+//            leadingIcon = {
+//                Icon(Icons.Default.Lock, contentDescription = "Password")
+//            },
+//            visualTransformation = PasswordVisualTransformation(),
+//            modifier = Modifier.fillMaxWidth(),
+//            shape = RoundedCornerShape(12.dp),
+//            colors = TextFieldDefaults.colors()
+//        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onNext,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005F6B)),
+            shape = RoundedCornerShape(50),
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 100.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .height(48.dp)
         ) {
-            Column (
-                modifier = Modifier.padding(horizontal = 15.dp)
-            ){
-                Text(
-                    text = "PosyanduCare",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF013B6D)
-                )
-                Spacer(modifier= Modifier.height(8.dp))
-                Text(
-                    text = "Selamat Datang Kembali!\n" +
-                            "Silahkan lengkapi form berikut untuk LogIn",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            }
-            Spacer(modifier= Modifier.height(24.dp))
+            Text("Masuk", color = Color.White)
+        }
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )            ) {
-                Column (
-                    modifier = Modifier.padding(24.dp)
-                ){
-                    Text(
-                        text = "Email",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+        Spacer(modifier = Modifier.height(180.dp))
 
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = onEmailChange,
-                        label = {
-                            Text("Email")
-                        },
-                        placeholder = {
-                            Text("Contoh: kamu@gmail.com")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = "Email")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    Spacer(modifier= Modifier.height(16.dp))
-
-                    Text(
-                        text = "Password",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = onPasswordChange,
-                        label = {
-                            Text("Password")
-                        },
-                        placeholder = {
-                            Text("Kata sandi")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "Password")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(
-                                Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-                                )
-                            )
-                            .clickable { onNext() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Masuk", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
+        // Text button sejajar
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Belum memiliki Akun?")
+            TextButton(onClick = onNext) { //ubah onNext jadi onRegister
+                Text("Daftar", color = Color(0xFFFF9800))
             }
         }
+    }
+}
+
+//form field
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomFormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder, color = Color.Gray) },
+            trailingIcon = trailingIcon,
+            readOnly = readOnly,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            singleLine = true,
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE8E9ED), shape = RoundedCornerShape(10.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFF1F1F1),
+                unfocusedContainerColor = Color(0xFFF1F1F1),
+                disabledContainerColor = Color(0xFFF1F1F1)
+            )
+        )
     }
 }
 
@@ -211,3 +282,5 @@ fun LoginPreview() {
         onPasswordChange = {}
     )
 }
+
+

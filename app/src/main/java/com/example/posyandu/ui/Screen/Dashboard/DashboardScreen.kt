@@ -3,6 +3,8 @@ package com.example.posyandu.ui.Screen.Dashboard
 //import androidx.compose.material.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,9 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.posyandu.R
@@ -36,15 +46,19 @@ import com.example.posyandu.ui.Screen.EKMS.TabelPemeriksaanBalita
 //import com.example.posyandu.ui.Screen.EKMS.TabelPemeriksaanIbu
 
 
+
 @Composable
 fun DashboardScreen() {
+    HeaderBackground()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        HeaderSection()
+        HelpDeskIcon(onClick = {})
+
+        HeaderContent()
         Spacer(modifier = Modifier.height(16.dp))
 
         MenuSection()
@@ -67,91 +81,112 @@ fun DashboardScreen() {
     }
 }
 
-//@Composable
-//fun HeaderSection() {
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.avatar_woman),
-//            contentDescription = "User Avatar",
-//            modifier = Modifier
-//                .size(60.dp)
-//                .clip(CircleShape)
-//        )
-//        Spacer(modifier = Modifier.width(12.dp))
-//        Column {
-//            Text("Hallo Rose", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-//            Text("Selamat Datang di PosyanduCare!", fontSize = 14.sp)
-//            Text(
-//                "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
-//                fontSize = 12.sp,
-//                color = Color.Gray
-//            )
-//        }
-//    }
-//}
 
 @Composable
-fun HeaderSection() {
+fun HeaderBackground() {
+    val context = LocalContext.current
+    val imageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.headertekstur)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .clip(RoundedCornerShape(15.dp)) // rounded semua sisi
+            .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF08607A),
+                        Color(0xFF84BBD1)
+                    )
+                )
+            )
     ) {
-        // Background image
         Image(
-            painter = painterResource(id = R.drawable.headertekstur),
-            contentDescription = "Banner",
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Overlay gradasi
-        Box(
+            bitmap = imageBitmap,
+            contentDescription = null,
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xCC08607A), // lebih gelap & transparan
-                            Color(0xFF84BBD1)
-                        )
-                    )
-                )
-                .padding(16.dp)
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp)),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
+//icon helpdesk
+@Composable
+fun HelpDeskIcon(
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 32.dp,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.SupportAgent,
+            contentDescription = "Helpdesk",
+            modifier = Modifier
+                .size(iconSize)
+                .clickable {
+                    // aksi klik di sini, misal show toast, dialog, dsb
+                    // sekarang kosong karena backend/fungsi tidak diperlukan
+                },
+            tint = Color.White // warna biru sesuai tema
+        )
+    }
+}
+
+@Composable
+fun HeaderContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Bagian atas: Avatar dan sapaan
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.avatar_woman),
-                    contentDescription = "User Avatar",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
+            Image(
+                painter = painterResource(id = R.drawable.avatar_woman),
+                contentDescription = "User Avatar",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(2.dp, Color.White, CircleShape)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = "Hallo Rose",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "Hallo Rose",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "Selamat Datang di PosyanduCare!",
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
-                        fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                }
+                Text(
+                    text = "Selamat Datang di PosyanduCare!",
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
             }
         }
+
+        // Teks tambahan di bawah Row
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
+            fontSize = 12.sp,
+            color = Color.White
+        )
     }
 }
 
@@ -186,8 +221,6 @@ fun MenuSection() {
     }
 }
 
-
-
 @Composable
 fun MenuItem(
     drawableResId: Int,
@@ -216,7 +249,6 @@ fun MenuItem(
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

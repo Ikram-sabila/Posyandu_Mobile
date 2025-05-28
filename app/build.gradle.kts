@@ -52,7 +52,6 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.9.3")
@@ -60,16 +59,9 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3") // cukup ini
     implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:0.15.1-alpha01")
-    implementation("androidx.compose.material3:material3-android:1.3.2")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
     // Retrofit & Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -85,18 +77,30 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.9")
 
     // Date Picker
-    implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.6")
-
-    implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
-
-    //material icon
-    implementation("androidx.compose.material:material-icons-extended:1.5.1")
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
 
     // Data Store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
-    //material 3
-    implementation("androidx.compose.material3:material3:1.2.0")
+    // Hilt Navigation Fragment
+    implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
+    // Material icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.1")
+
+    // Accompanist Pager (opsional kalau pakai dot indicator)
+    implementation("com.google.accompanist:accompanist-pager:0.32.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.32.0")
+
+    // Desugaring
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.6")
+
+    // Test
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

@@ -1,31 +1,56 @@
 package com.example.posyandu.ui.Screen.Register
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Card
-import androidx.compose.ui.draw.clip
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.posyandu.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.navigation.NavController
+
+
 
 @Composable
 fun RegisterScreen(
@@ -38,23 +63,37 @@ fun RegisterScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    RegisterContent(
-        email = email,
-        onEmailChange = { email = it },
-        name = name,
-        onNameChange = { name = it },
-        phone = phone,
-        onPhoneChange = { phone = it },
-        onNext = {
-            coroutineScope.launch{
-                println("Email: $email, Name: $name, Phone: $phone")
-                viewModel.saveRegisterInfo(email, name, phone)
-                delay(100)
-                navController.navigate("password")
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Background Image dipisah dari Modifier dan berada sebagai children pertama di Box
+        Image(
+            painter = painterResource(id = R.drawable.background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Register content ditaruh di atas background
+        RegisterContent(
+            email = email,
+            onEmailChange = { email = it },
+            name = name,
+            onNameChange = { name = it },
+            phone = phone,
+            onPhoneChange = { phone = it },
+            onNext = {
+                coroutineScope.launch {
+                    println("Email: $email, Name: $name, Phone: $phone")
+                    viewModel.saveRegisterInfo(email, name, phone)
+                    delay(100)
+                    navController.navigate("password")
+                }
             }
-        }
-    )
+        )
+    }
 }
+
 
 @Composable
 fun RegisterContent(
@@ -66,156 +105,165 @@ fun RegisterContent(
     onPhoneChange: (String) -> Unit,
     onNext: () -> Unit = {}
 ) {
-    Box (
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFEAF6FF), Color(0xFFCCE9FF)),
-                    startY = 0f,
-                    endY = 400f
-                )
-            )
-    ){
+            // Dihilangkan background putih yang menutupi image
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 100.dp),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column (
-                modifier = Modifier.padding(horizontal = 15.dp)
-            ){
-                Text(
-                    text = "📞✨ Yuk, mulai dengan data dasar dulu!",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF013B6D)
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo PosyanduCare",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(50.dp) // ukuran bisa disesuaikan
+            )
+
+            Spacer(modifier = Modifier.height(8.dp)) // jarak antara logo dan teks
+
+            Text(
+                text = "PosyanduCare",
+                color = Color(0xFF005F6B),
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
                 )
-                Spacer(modifier= Modifier.height(8.dp))
-                Text(
-                    text = "Masukkan info kontak kamu, supaya kami bisa kasih kabar penting dan pengingat jadwal Posyandu langsung ke HP kamu ya! 😊",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            }
-            Spacer(modifier= Modifier.height(24.dp))
+            )
+        }
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )            ) {
-                Column (
-                    modifier = Modifier.padding(24.dp)
-                ){
-                    Text(
-                        text = "Email",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+        Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = onEmailChange,
-                        label = {
-                            Text("Email")
-                        },
-                        placeholder = {
-                            Text("Contoh: kamu@gmail.com")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = "Email")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    Spacer(modifier= Modifier.height(16.dp))
+        Text(
+            text = "Selamat Datang",
+            color = Color(0xFF005F6B),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp
+            ),
+        )
+        Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = "Nama",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+        Text(
+            text = "Silakan lengkapi formulir berikut untuk memulai",
+            color = Color(0xFF7D7F81),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp
+            ),
+            textAlign = TextAlign.Center
+            //  modifier = Modifier.align(Alignment.CenterHorizontally)  // optional
+        )
 
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = onNameChange,
-                        label = {
-                            Text("Username")
-                        },
-                        placeholder = {
-                            Text("Nama lengkap sesuai KTP")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = "Nama")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    Spacer(modifier= Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
-                    Text(
-                        text = "No. Telp",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp) // Padding untuk teks
-                    )
+        CustomFormField(
+            label = "Email",
+            value = email,
+            onValueChange = onEmailChange,
+            placeholder = "Masukkan Email Anda",
+            trailingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
+        )
 
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = onPhoneChange,
-                        label = { Text("No. Telp") },
-                        placeholder = { Text("Nomor Aktif") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Phone, contentDescription = "Telepon")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(
-                                Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-                                )
-                            )
-                            .clickable { onNext() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Selanjutnya", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
+        CustomFormField(
+            label = "Nama",
+            value = name,
+            onValueChange = onNameChange,
+            placeholder = "Nama lengkap sesuai KTP",
+            trailingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        CustomFormField(
+            label = "Nomor Telepon",
+            value = phone,
+            onValueChange = onPhoneChange,
+            placeholder = "Nomor telfon aktif",
+            trailingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onNext,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005F6B)),
+            shape = RoundedCornerShape(50),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+        ) {
+            Text("Daftar", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(120.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Sudah memiliki akun?")
+            TextButton(onClick = onNext) { //ubah onNext jadi onLogin
+                Text("Masuk", color = Color(0xFFFF9800))
             }
         }
+
+    }
+}
+
+//form field
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomFormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder, color = Color.Gray) },
+            trailingIcon = trailingIcon,
+            readOnly = readOnly,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            singleLine = true,
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE8E9ED), shape = RoundedCornerShape(10.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFF1F1F1),
+                unfocusedContainerColor = Color(0xFFF1F1F1),
+                disabledContainerColor = Color(0xFFF1F1F1)
+            )
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterPreview() {
-    RegisterContent(
-        email = "",
-        onEmailChange = {},
-        name = "",
-        onNameChange = {},
-        phone = "",
-        onPhoneChange = {},
-        onNext = {}
-    )
+fun RegisterScreenPreview() {
+    val navController = rememberNavController()
+    val dummyViewModel = RegisterViewModel() // Buat dummy, kalau kelasnya butuh context, buat versi sederhana
+
+    RegisterScreen(navController = navController, viewModel = dummyViewModel)
 }
+
+
