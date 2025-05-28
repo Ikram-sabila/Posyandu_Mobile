@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,6 +88,9 @@ fun UbahPasswordScreen(
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
+        var oldPasswordVisible by remember { mutableStateOf(false) }
+        var newPasswordVisible by remember { mutableStateOf(false) }
+
         // Kata Sandi Saat Ini
         Text("Kata sandi saat ini", fontWeight = FontWeight.Medium)
         TextField(
@@ -97,7 +104,15 @@ fun UbahPasswordScreen(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFE5E5EA),
                 focusedContainerColor = Color(0xFFE5E5EA)
-            )
+            ),
+            visualTransformation = if (oldPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (oldPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (oldPasswordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                IconButton(onClick = { oldPasswordVisible = !oldPasswordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            }
         )
 
         // Kata Sandi Baru
@@ -113,7 +128,15 @@ fun UbahPasswordScreen(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFE5E5EA),
                 focusedContainerColor = Color(0xFFE5E5EA)
-            )
+            ),
+            visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (newPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (newPasswordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            }
         )
 
 //        // Ulangi Kata Sandi Baru

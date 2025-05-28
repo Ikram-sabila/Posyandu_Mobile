@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Card
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavController
 
 @Composable
@@ -162,21 +165,31 @@ fun LoginContent(
                         modifier = Modifier.padding(start = 8.dp, top = 8.dp)
                     )
 
+                    var passwordVisible by remember { mutableStateOf(false) }
+
                     OutlinedTextField(
                         value = password,
                         onValueChange = onPasswordChange,
-                        label = {
-                            Text("Password")
-                        },
-                        placeholder = {
-                            Text("Kata sandi")
-                        },
+                        label = { Text("Password") },
+                        placeholder = { Text("Kata sandi") },
                         leadingIcon = {
                             Icon(Icons.Default.Lock, contentDescription = "Password")
                         },
+                        trailingIcon = {
+                            val image = if (passwordVisible)
+                                Icons.Default.Visibility
+                            else
+                                Icons.Default.VisibilityOff
+
+                            val description = if (passwordVisible) "Sembunyikan password" else "Tampilkan password"
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description)
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        visualTransformation = PasswordVisualTransformation()
+                        shape = RoundedCornerShape(16.dp)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
 
