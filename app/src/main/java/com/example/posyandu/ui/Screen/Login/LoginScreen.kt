@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import androidx.navigation.NavController
 import com.example.posyandu.R
 import com.example.posyandu.ui.Screen.Register.FormInput
@@ -70,7 +72,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("berita") {
+            navController.navigate("riwayat-ekms") {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -218,6 +220,7 @@ fun LoginContent(
 
         Spacer(modifier = Modifier.height(180.dp))
 
+
         // Text button sejajar
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -225,6 +228,7 @@ fun LoginContent(
             Text(text = "Belum memiliki Akun?")
             TextButton(onClick = onNext) { //ubah onNext jadi onRegister
                 Text("Daftar", color = Color(0xFFFF9800))
+
             }
         }
     }

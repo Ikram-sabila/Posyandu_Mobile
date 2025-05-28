@@ -76,7 +76,7 @@ fun DashboardScreen() {
 //        // Hanya panggil TabelPemeriksaanIbu di Dashboard
 //        TabelPemeriksaanIbu(tableData = ekmsData)
         Spacer(modifier = Modifier.height(16.dp))
-        TabelPemeriksaanBalita(tableData = ekmsData)
+//        TabelPemeriksaanBalita(tableData = ekmsData)
 
     }
 }

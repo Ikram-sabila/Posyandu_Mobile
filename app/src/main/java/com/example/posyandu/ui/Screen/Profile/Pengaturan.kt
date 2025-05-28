@@ -19,13 +19,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 
 
 @Composable
 fun PengaturanScreen(
-    onBackClick: () -> Unit = {},
-    onUbahEmailClick: () -> Unit = {},
-    onUbahPasswordClick: () -> Unit = {}
+    navController: NavController
 ) {
     Column(
         modifier = Modifier
@@ -41,7 +40,7 @@ fun PengaturanScreen(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Kembali",
                 modifier = Modifier
-                    .clickable { onBackClick() }
+                    .clickable { navController.popBackStack() }
                     .size(24.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -78,7 +77,7 @@ fun PengaturanScreen(
                         text = "Ubah Email",
                         color = Color(0xFFFF9800), // warna oranye
                         fontSize = 14.sp,
-                        modifier = Modifier.clickable { onUbahEmailClick() }
+                        modifier = Modifier.clickable { navController.navigate("edit-email") }
                     )
                 }
 
@@ -101,7 +100,9 @@ fun PengaturanScreen(
                         text = "Ubah Password",
                         color = Color(0xFFFF9800),
                         fontSize = 14.sp,
-                        modifier = Modifier.clickable { onUbahPasswordClick() }
+                        modifier = Modifier.clickable {
+                            navController.navigate("Update-Password")
+                        }
                     )
                 }
             }
@@ -114,7 +115,7 @@ fun PengaturanScreen(
 @Composable
 fun PengaturanScreenPreview() {
     MaterialTheme {
-        PengaturanScreen()
+//        PengaturanScreen()
 
     }
 }

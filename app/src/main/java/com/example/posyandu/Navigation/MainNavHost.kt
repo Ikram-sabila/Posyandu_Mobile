@@ -22,6 +22,12 @@ import com.example.posyandu.ui.Screen.Berita.PortalBeritaRepository
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaScreen
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModelFactory
+import com.example.posyandu.ui.Screen.EKMS.EKMSBalitaScreen
+import com.example.posyandu.ui.Screen.EKMS.EKMSRepository
+import com.example.posyandu.ui.Screen.EKMS.EKMSScreen
+import com.example.posyandu.ui.Screen.EKMS.EKMSViewModel
+import com.example.posyandu.ui.Screen.EKMS.EKMSViewModelFactory
+import com.example.posyandu.ui.Screen.EKMS.InformasiPerkembanganBalitaScreen
 import com.example.posyandu.ui.Screen.Login.LoginScreen
 import com.example.posyandu.ui.Screen.Login.LoginViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PemeriksaanBalitaScreen
@@ -29,6 +35,14 @@ import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaScreen
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModelFactory
 import com.example.posyandu.ui.Screen.PortalPeriksa.RiwayatPemeriksaanScreen
+import com.example.posyandu.ui.Screen.Profile.EditProfileScreen
+import com.example.posyandu.ui.Screen.Profile.PengaturanScreen
+import com.example.posyandu.ui.Screen.Profile.ProfilScreen
+import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
+import com.example.posyandu.ui.Screen.Profile.ProfileRepository
+import com.example.posyandu.ui.Screen.Profile.ProfileViewModelFactory
+import com.example.posyandu.ui.Screen.Profile.UbahEmailScreen
+import com.example.posyandu.ui.Screen.Profile.UbahPasswordScreen
 import com.example.posyandu.ui.Screen.Register.CompleteDataScreen
 import com.example.posyandu.ui.Screen.Register.PasswordScreen
 import com.example.posyandu.ui.Screen.Register.RegisterScreen
@@ -144,6 +158,62 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             val nomorAntrian = backStackEntry.arguments?.getInt("nomor-antrian") ?: 0
 
             DetailAntrianScreen(navController, nomorAntrian)
+        }
+        composable("profil") {
+            ProfilScreen(navController)
+        }
+        composable("edit-profile") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            EditProfileScreen(viewModel = viewModel)
+        }
+        composable("pengaturan") {
+            PengaturanScreen(navController)
+        }
+        composable("edit-email") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            UbahEmailScreen(navController, viewModel = viewModel)
+        }
+        composable("Update-Password") {
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+            UbahPasswordScreen(navController, viewModel)
+        }
+        composable("riwayat-ekms") {
+            val repository = PortalPeriksaRepository()
+            val factory = PortalPeriksaViewModelFactory(repository)
+            val viewModel: PortalPeriksaViewModel = viewModel(factory = factory)
+            EKMSScreen(navController, viewModel)
+        }
+        composable(
+            "ekms/{nik}",
+            arguments = listOf(navArgument("nik") { type = NavType.StringType })
+            ) {backStackEntry ->
+            val nik = backStackEntry.arguments?.getString("nik") ?: ""
+
+            val repository = EKMSRepository()
+            val factory = EKMSViewModelFactory(repository)
+            val viewModel: EKMSViewModel = viewModel(factory = factory)
+            EKMSBalitaScreen(navController, viewModel, nik)
+        }
+        composable(
+            "riwayat-ekms/{nik}/{option}",
+            arguments = listOf(
+                navArgument("nik") { type = NavType.StringType },
+                navArgument("option") { type = NavType.IntType }
+            )
+        ) {backStackEntry ->
+            val nik = backStackEntry.arguments?.getString("nik") ?: ""
+            val option = backStackEntry.arguments?.getInt("option") ?: 0
+
+            val repository = EKMSRepository()
+            val factory = EKMSViewModelFactory(repository)
+            val viewModel: EKMSViewModel = viewModel(factory = factory)
+            InformasiPerkembanganBalitaScreen(navController, viewModel, nik, option)
         }
     }
 }

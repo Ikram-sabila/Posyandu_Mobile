@@ -4,22 +4,32 @@ import androidx.compose.runtime.MutableState
 import com.example.posyandu.Data.Model.Request.AnggotaKeluargaRequest
 import com.example.posyandu.Data.Model.Request.DaftarAntrianRequest
 import com.example.posyandu.Data.Model.Request.LoginRequest
+import com.example.posyandu.Data.Model.Request.PortalProfileRequest
 import com.example.posyandu.Data.Model.Request.RegisterRequest
+import com.example.posyandu.Data.Model.Request.UpdateEmailRequest
+import com.example.posyandu.Data.Model.Request.UpdatePasswordRequest
 import com.example.posyandu.Data.Model.Response.AnggotaBeritaResponse
 import com.example.posyandu.Data.Model.Response.AnggotaResponse
 import com.example.posyandu.Data.Model.Response.AnggotaTerdaftarResponse
 import com.example.posyandu.Data.Model.Response.Antrian
 import com.example.posyandu.Data.Model.Response.BeritaDetailResponse
 import com.example.posyandu.Data.Model.Response.DaftarAntrianResponse
+import com.example.posyandu.Data.Model.Response.DataResponse
 import com.example.posyandu.Data.Model.Response.LoginResponse
 import com.example.posyandu.Data.Model.Response.PemeriksaanResponse
 import com.example.posyandu.Data.Model.Response.PortalBeritaResponse
+import com.example.posyandu.Data.Model.Response.PortalEkmsResponse
 import com.example.posyandu.Data.Model.Response.PortalPeriksaResponse
+import com.example.posyandu.Data.Model.Response.PortalProfileResponse
 import com.example.posyandu.Data.Model.Response.RegisterResponse
+import com.example.posyandu.Data.Model.Response.UpdateEmailResponse
+import com.example.posyandu.Data.Model.Response.UpdatePasswordResponse
+import com.example.posyandu.Data.Model.Response.WargaResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -38,6 +48,19 @@ interface ApiService {
         @Header("Authorization")  bearerToken: String,
         @Path("no_kk") noKk: String
     ): Response<List<AnggotaResponse>>
+
+    @PATCH("api/auth/warga/update-profil/{id}")
+    suspend fun updateProfile(
+        @Header("Authorization")  bearerToken: String,
+        @Path("id") id: Int,
+        @Body request: PortalProfileRequest
+    ): Response<PortalProfileResponse>
+
+    @GET("api/auth/warga/update-profil/{id}")
+    suspend fun getProfile(
+        @Header("Authorization")  bearerToken: String,
+        @Path("id") id: Int
+    ): Response<WargaResponse>
 
     @GET("api/auth/warga/show/{wargaId}/{nik}/{tipe}")
     suspend fun getRiwayat(
@@ -96,4 +119,43 @@ interface ApiService {
         @Path("warga_id") wargaId: Int?,
         @Header("Accept") accept: String = "application/json"
     ): AnggotaTerdaftarResponse
+
+    @PATCH("api/auth/warga/update-email/{id}")
+    suspend fun updateEmail(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: Int,
+        @Body body: UpdateEmailRequest,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<UpdateEmailResponse>
+
+    @PATCH("api/auth/warga/update-password/{id}")
+    suspend fun updatePassword(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: Int,
+        @Body body: UpdatePasswordRequest,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<UpdatePasswordResponse>
+
+    @GET("api/auth/warga/ekms/data/{nik}/{definisi}")
+    suspend fun getEkms(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Path("definisi") definisi: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<DataResponse>
+
+    @GET("api/auth/warga/ekms/data-diri/{nik}")
+    suspend fun getDataDiriEkms(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<PortalEkmsResponse>
+
+    @GET("api/auth/warga/ekms/data/{nik}")
+    suspend fun getPerkembangan(
+        @Header("Authorization") authorization: String,
+        @Path("nik") nik: String,
+        @Header("Accept") accept: String = "application/json"
+    ): Response<DataResponse>
+
 }
