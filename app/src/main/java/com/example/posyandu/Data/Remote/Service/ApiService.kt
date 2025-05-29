@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import com.example.posyandu.Data.Model.Request.AnggotaKeluargaRequest
 import com.example.posyandu.Data.Model.Request.DaftarAntrianRequest
 import com.example.posyandu.Data.Model.Request.LoginRequest
+import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
 import com.example.posyandu.Data.Model.Request.PortalProfileRequest
 import com.example.posyandu.Data.Model.Request.RegisterRequest
 import com.example.posyandu.Data.Model.Request.UpdateEmailRequest
@@ -21,6 +22,8 @@ import com.example.posyandu.Data.Model.Response.PortalBeritaResponse
 import com.example.posyandu.Data.Model.Response.PortalEkmsResponse
 import com.example.posyandu.Data.Model.Response.PortalPeriksaResponse
 import com.example.posyandu.Data.Model.Response.PortalProfileResponse
+import com.example.posyandu.Data.Model.Response.PosyanduItem
+import com.example.posyandu.Data.Model.Response.PosyanduResponse
 import com.example.posyandu.Data.Model.Response.RegisterResponse
 import com.example.posyandu.Data.Model.Response.UpdateEmailResponse
 import com.example.posyandu.Data.Model.Response.UpdatePasswordResponse
@@ -36,6 +39,9 @@ import retrofit2.http.Path
 interface ApiService {
     @POST("api/auth/warga/register")
     suspend fun registerWarga(@Body request: RegisterRequest): Response<RegisterResponse>
+
+    @GET("api/auth/warga/posko")
+    suspend fun getPosko(): Response<PosyanduResponse<List<PosyanduItem>>>
 
     @POST("api/auth/warga/login")
     suspend fun loginWarga(@Body request: LoginRequest): Response<LoginResponse>
@@ -158,4 +164,10 @@ interface ApiService {
         @Header("Accept") accept: String = "application/json"
     ): Response<DataResponse>
 
+    @PATCH("api/auth/warga/update-profil-anggota/{id}")
+    suspend fun updateProfileAnggota(
+        @Header("Authorization")  bearerToken: String,
+        @Path("id") id: Int,
+        @Body request: PortalProfileAnggotaRequest
+    ): Response<PortalProfileResponse>
 }

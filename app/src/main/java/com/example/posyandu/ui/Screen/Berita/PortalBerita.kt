@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Response.PortalBeritaItem
+import com.example.posyandu.ui.Screen.components.MainScaffold
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -62,91 +63,98 @@ fun PortalBeritaScreen(
     val uiState by viewModel.uiState.collectAsState()
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
+    MainScaffold(
+        navController = navController,
+        currentRoute = "berita"
     ) {
-        // Header
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 24.dp)
+        paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Kembali",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { navController.popBackStack() }
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Portal Berita",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF0A1D2D)
-            )
-        }
+            // Header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Kembali",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { navController.popBackStack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Portal Berita",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0A1D2D)
+                )
+            }
 
-        when (uiState) {
-            is UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text("Gagal: ${(uiState as UiState.Error).message}")
-            is UiState.Success<*> -> {
-                val data = (uiState as UiState.Success<List<PortalBeritaItem>>).data
-                if (data.isEmpty()) {
-                    Text("Belum ada berita.")
-                } else {
-                    val today = LocalDate.now()
-                    val beritaSekarang = data.filter {
-                        try {
-                            LocalDate.parse(it.tanggal, formatter) <= today
-                        } catch (e: Exception) {
-                            true
-                        }
-                    }
-                    val beritaMendatang = data.filter {
-                        try {
-                            LocalDate.parse(it.tanggal, formatter) > today
-                        } catch (e: Exception) {
-                            false
-                        }
-                    }
-
-                    // Berita Minggu Ini
-                    Text("Minggu Ini", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    beritaSekarang.forEach {
-                        NewsCard(
-                            title = it.judul,
-                            location = it.tempat ?: "-",
-                            date = it.tanggal,
-                            backgroundColor = Color(0xFFE1F1F8),
-                            buttonColor = Color(0xFFFFA800),
-                            onDetailClick = {
-                                navController.navigate("berita-detail/${it.id}")
+            when (uiState) {
+                is UiState.Loading -> CircularProgressIndicator()
+                is UiState.Error -> Text("Gagal: ${(uiState as UiState.Error).message}")
+                is UiState.Success<*> -> {
+                    val data = (uiState as UiState.Success<List<PortalBeritaItem>>).data
+                    if (data.isEmpty()) {
+                        Text("Belum ada berita.")
+                    } else {
+                        val today = LocalDate.now()
+                        val beritaSekarang = data.filter {
+                            try {
+                                LocalDate.parse(it.tanggal, formatter) <= today
+                            } catch (e: Exception) {
+                                true
                             }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
+                        }
+                        val beritaMendatang = data.filter {
+                            try {
+                                LocalDate.parse(it.tanggal, formatter) > today
+                            } catch (e: Exception) {
+                                false
+                            }
+                        }
 
-                    if (beritaMendatang.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Divider()
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Akan Datang", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        // Berita Minggu Ini
+                        Text("Minggu Ini", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(8.dp))
-                        beritaMendatang.forEach {
+                        beritaSekarang.forEach {
                             NewsCard(
                                 title = it.judul,
                                 location = it.tempat ?: "-",
                                 date = it.tanggal,
-                                backgroundColor = Color(0xFFF0F2F2),
-                                buttonColor = Color.Gray,
+                                backgroundColor = Color(0xFFE1F1F8),
+                                buttonColor = Color(0xFFFFA800),
                                 onDetailClick = {
                                     navController.navigate("berita-detail/${it.id}")
                                 }
                             )
                             Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        if (beritaMendatang.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Divider()
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Akan Datang", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            beritaMendatang.forEach {
+                                NewsCard(
+                                    title = it.judul,
+                                    location = it.tempat ?: "-",
+                                    date = it.tanggal,
+                                    backgroundColor = Color(0xFFF0F2F2),
+                                    buttonColor = Color.Gray,
+                                    onDetailClick = {
+                                        navController.navigate("berita-detail/${it.id}")
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
                     }
                 }
@@ -216,6 +224,9 @@ fun NewsCard(
 
 @Composable
 fun JadwalMingguIniSection(
+    judul: String,
+    location: String,
+    date: String,
     onDetailClick: () -> Unit = {}
 ) {
     Column {
@@ -226,9 +237,9 @@ fun JadwalMingguIniSection(
             modifier = Modifier.padding(vertical = 8.dp)
         )
         NewsCard(
-            title = "Pemberian Obat Cacing dan PMT",
-            location = "Posko Melati",
-            date = "Minggu, 18 Mei 2025",
+            title = judul,
+            location = location,
+            date = date,
             backgroundColor = Color(0xFFE1F1F8),
             buttonColor = Color(0xFFFFA800),
             onDetailClick = onDetailClick

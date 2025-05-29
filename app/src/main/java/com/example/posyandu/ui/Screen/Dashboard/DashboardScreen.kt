@@ -1,86 +1,125 @@
 package com.example.posyandu.ui.Screen.Dashboard
 
-//import androidx.compose.material.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SupportAgent
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.posyandu.Data.Local.UserPreferences
+import com.example.posyandu.Data.Model.Response.PortalBeritaItem
 import com.example.posyandu.R
 import com.example.posyandu.ui.Screen.Berita.JadwalMingguIniSection
-import com.example.posyandu.ui.Screen.EKMS.TabelPemeriksaanBalita
-//import com.example.posyandu.ui.Screen.EKMS.TabelPemeriksaanIbu
-
-
+import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
+import com.example.posyandu.ui.Screen.Berita.UiState
+import com.example.posyandu.ui.Screen.Profile.GetProfileState
+import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
+import com.example.posyandu.ui.Screen.components.MainScaffold
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    navController: NavController,
+    portalBeritaViewModel: PortalBeritaViewModel,
+    profilViewModel: ProfilViewModel
+) {
     HeaderBackground()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        HelpDeskIcon(onClick = {})
 
-        HeaderContent()
-        Spacer(modifier = Modifier.height(16.dp))
+    val context = LocalContext.current
+    val token by UserPreferences.getToken(context).collectAsState(initial = "")
+    val no_kk by UserPreferences.getNoKK(context).collectAsState(initial = "")
+    val id by UserPreferences.getUserId(context).collectAsState(initial = 0)
 
-        MenuSection()
-        Spacer(modifier = Modifier.height(16.dp))
+    val beritaState by portalBeritaViewModel.uiState.collectAsState()
+    val profileState by profilViewModel.profileState.collectAsState()
 
-        JadwalMingguIniSection()
-        Spacer(modifier = Modifier.height(16.dp))
+    LaunchedEffect(Unit) {
+        val bearerToken = "Bearer $token"
+        portalBeritaViewModel.fetchBerita(bearerToken, no_kk)
+        id?.let { profilViewModel.getProfile(bearerToken, it) }
+    }
 
+    MainScaffold(navController = navController, currentRoute = "dashboard") { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            HeaderBackground()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                HelpDeskIcon(onClick = {})
 
-        val ekmsData = listOf(
-            listOf("01-01-2025", "1", "50 Kg", "25 cm", "120/80"),
-            listOf("01-02-2025", "1", "51 Kg", "26 cm", "110/70"),
-            listOf("01-03-2025", "2", "53 Kg", "27 cm", "115/75")
-        )
-//        // Hanya panggil TabelPemeriksaanIbu di Dashboard
-//        TabelPemeriksaanIbu(tableData = ekmsData)
-        Spacer(modifier = Modifier.height(16.dp))
-//        TabelPemeriksaanBalita(tableData = ekmsData)
+                when (profileState) {
+                    is GetProfileState.Loading -> Text("Memuat....")
+                    is GetProfileState.Success -> {
+                        val data = (profileState as GetProfileState.Success).data
+                        HeaderContent(data.nama_lengkap ?: "-")
+                    }
+                    else -> {}
+                }
 
+                Spacer(modifier = Modifier.height(16.dp))
+                MenuSection(navController)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                when (beritaState) {
+                    is UiState.Loading -> CircularProgressIndicator()
+                    is UiState.Error -> Text("Gagal: ${(beritaState as UiState.Error).message}")
+                    is UiState.Success<*> -> {
+                        val data = (beritaState as UiState.Success<List<PortalBeritaItem>>).data
+
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                        val today = LocalDate.now()
+
+                        val upComingEvent = data
+                            .mapNotNull {
+                                try {
+                                    val date = LocalDate.parse(it.tanggal, formatter)
+                                    if (date.isAfter(today)) it to date else null
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            }
+                            .minByOrNull { it.second }
+                            ?.first
+
+                        if (upComingEvent != null) {
+                            JadwalMingguIniSection(
+                                judul = upComingEvent.judul,
+                                location = upComingEvent.tempat.orEmpty(),
+                                date = upComingEvent.tanggal
+                            )
+                        } else {
+                            JadwalKosongCard()
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
 
 @Composable
 fun HeaderBackground() {
@@ -113,42 +152,13 @@ fun HeaderBackground() {
     }
 }
 
-//icon helpdesk
 @Composable
-fun HelpDeskIcon(
-    modifier: Modifier = Modifier,
-    iconSize: Dp = 32.dp,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.SupportAgent,
-            contentDescription = "Helpdesk",
-            modifier = Modifier
-                .size(iconSize)
-                .clickable {
-                    // aksi klik di sini, misal show toast, dialog, dsb
-                    // sekarang kosong karena backend/fungsi tidak diperlukan
-                },
-            tint = Color.White // warna biru sesuai tema
-        )
-    }
-}
-
-@Composable
-fun HeaderContent() {
+fun HeaderContent(nama: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        // Bagian atas: Avatar dan sapaan
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -167,7 +177,7 @@ fun HeaderContent() {
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "Hallo Rose",
+                    text = "Hallo $nama",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -179,8 +189,6 @@ fun HeaderContent() {
                 )
             }
         }
-
-        // Teks tambahan di bawah Row
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "Pantau kesehatan keluarga & info penting seputar ibu & anak!",
@@ -190,34 +198,47 @@ fun HeaderContent() {
     }
 }
 
-
+@Composable
+fun HelpDeskIcon(
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 32.dp,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.SupportAgent,
+            contentDescription = "Helpdesk",
+            modifier = Modifier
+                .size(iconSize)
+                .clickable { onClick() },
+            tint = Color.White
+        )
+    }
+}
 
 @Composable
-fun MenuSection() {
+fun MenuSection(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        MenuItem(
-            R.drawable.portalperiksa,
-            "Portal Periksa",
-            modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFE3F2FD) // Biru muda
-        )
-        MenuItem(
-            R.drawable.portalberita,
-            "Portal Berita",
-            modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFFFF9C4) // Kuning muda
-        )
-        MenuItem(
-            R.drawable.ekms,
-            "E-KMS",
-            modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFFFE4E9) // Pink muda
-        )
+        MenuItem(R.drawable.portalperiksa, "Portal Periksa", Modifier.weight(1f), Color(0xFFE3F2FD)) {
+            navController.navigate("portal-periksa")
+        }
+        MenuItem(R.drawable.portalberita, "Portal Berita", Modifier.weight(1f), Color(0xFFFFF9C4)) {
+            navController.navigate("berita")
+        }
+        MenuItem(R.drawable.ekms, "E-KMS", Modifier.weight(1f), Color(0xFFFFE4E9)) {
+            navController.navigate("riwayat-ekms")
+        }
     }
 }
 
@@ -226,12 +247,14 @@ fun MenuItem(
     drawableResId: Int,
     label: String,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFF0F0F0) // Default color
+    backgroundColor: Color = Color(0xFFF0F0F0),
+    onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(backgroundColor)
+            .clickable { onClick() }
             .padding(vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -242,16 +265,39 @@ fun MenuItem(
             modifier = Modifier.size(48.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
+        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+fun JadwalKosongCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF8F9FA))
+            .border(1.dp, Color(0xFFCCCCCC), RoundedCornerShape(16.dp))
+            .padding(16.dp)
+    ) {
+        Column {
+            Text(
+                text = "Jadwal Minggu Ini",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF08607A)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Belum ada jadwal kegiatan posyandu untuk minggu ini.",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DashboardScreenPreview() {
-    DashboardScreen()
+    // DashboardScreen()
 }

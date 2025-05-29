@@ -52,6 +52,7 @@ import androidx.navigation.NavController
 import androidx.compose.ui.unit.dp
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.R
+import com.example.posyandu.ui.Screen.components.MainScaffold
 
 
 @Composable
@@ -62,130 +63,137 @@ fun ProfilScreen(navController: NavController) {
     val email by UserPreferences.getEmail(context = context).collectAsState(initial = "Sola")
     val no_telp by UserPreferences.getNoTelp(context = context).collectAsState(initial = "123")
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+    MainScaffold(
+        navController = navController,
+        currentRoute = "profil"
     ) {
-        Box(
+        paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color.White)
         ) {
-            val imageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.headertekstur)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                val imageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.headertekstur)
 
-            Canvas(modifier = Modifier.matchParentSize()) {
-                val path = Path().apply {
-                    moveTo(0f, size.height * 0.7f)
-                    quadraticBezierTo(
-                        size.width * 0.5f, size.height * 1.1f,
-                        size.width, size.height * 0.7f
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val path = Path().apply {
+                        moveTo(0f, size.height * 0.7f)
+                        quadraticBezierTo(
+                            size.width * 0.5f, size.height * 1.1f,
+                            size.width, size.height * 0.7f
+                        )
+                        lineTo(size.width, 0f)
+                        lineTo(0f, 0f)
+                        close()
+                    }
+
+                    // 1. Gradient background
+                    drawPath(
+                        path = path,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF08607A),
+                                Color(0xFF84BBD1)
+                            ),
+                            startY = 0f,
+                            endY = size.height
+                        ),
+                        style = Fill
                     )
-                    lineTo(size.width, 0f)
-                    lineTo(0f, 0f)
-                    close()
+
+                    // 2. Overlay tekstur di atas gradient
+                    clipPath(path) {
+                        drawImage(
+                            image = imageBitmap,
+                            dstSize = IntSize(size.width.toInt(), size.height.toInt())
+                        )
+                    }
                 }
 
-                // 1. Gradient background
-                drawPath(
-                    path = path,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF08607A),
-                            Color(0xFF84BBD1)
-                        ),
-                        startY = 0f,
-                        endY = size.height
-                    ),
-                    style = Fill
-                )
-
-                // 2. Overlay tekstur di atas gradient
-                clipPath(path) {
-                    drawImage(
-                        image = imageBitmap,
-                        dstSize = IntSize(size.width.toInt(), size.height.toInt())
-                    )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 0.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(contentAlignment = Alignment.BottomEnd) {
+                        Image(
+                            painter = painterResource(id = R.drawable.avatar_woman),
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(2.dp, Color.White, CircleShape)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(Color.White, CircleShape)
+                                .padding(3.dp)
+                                .offset(x = 0.dp, y = (-1).dp)
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             Column(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 0.dp),
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(contentAlignment = Alignment.BottomEnd) {
-                    Image(
-                        painter = painterResource(id = R.drawable.avatar_woman),
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(2.dp, Color.White, CircleShape)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(Color.White, CircleShape)
-                            .padding(3.dp)
-                            .offset(x = 0.dp, y = (-1).dp)
+                nama?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF003049)
+                        )
                     )
                 }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            nama?.let {
                 Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF003049)
-                    )
+                    text = "$email | $no_telp",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
             }
-            Text(
-                text = "$email | $no_telp",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-        }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            ProfileMenuItem(
-                icon = Icons.Default.Person,
-                text = "Edit informasi profil",
-                onClick = {
-                    navController.navigate("edit-profile")
-                }
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ProfileMenuItem(
-                icon = Icons.Default.Lock,
-                text = "Pengaturan Akun",
-                onClick = {
-                    navController.navigate("pengaturan")
-                }
-            )
             Spacer(modifier = Modifier.height(24.dp))
-            ProfileMenuItem(
-                icon = Icons.Default.ExitToApp,
-                text = "Keluar",
-                onClick = {}
-            )
+
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                ProfileMenuItem(
+                    icon = Icons.Default.Person,
+                    text = "Edit informasi profil",
+                    onClick = {
+                        navController.navigate("edit-profile")
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                ProfileMenuItem(
+                    icon = Icons.Default.Lock,
+                    text = "Pengaturan Akun",
+                    onClick = {
+                        navController.navigate("pengaturan")
+                    }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                ProfileMenuItem(
+                    icon = Icons.Default.ExitToApp,
+                    text = "Keluar",
+                    onClick = {}
+                )
+            }
         }
     }
 }

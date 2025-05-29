@@ -22,6 +22,7 @@ import com.example.posyandu.ui.Screen.Berita.PortalBeritaRepository
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaScreen
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModelFactory
+import com.example.posyandu.ui.Screen.Dashboard.DashboardScreen
 import com.example.posyandu.ui.Screen.EKMS.EKMSBalitaScreen
 import com.example.posyandu.ui.Screen.EKMS.EKMSRepository
 import com.example.posyandu.ui.Screen.EKMS.EKMSScreen
@@ -36,6 +37,7 @@ import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModelFactory
 import com.example.posyandu.ui.Screen.PortalPeriksa.RiwayatPemeriksaanScreen
 import com.example.posyandu.ui.Screen.Profile.EditProfileScreen
+import com.example.posyandu.ui.Screen.Profile.FamilyInfoScreen
 import com.example.posyandu.ui.Screen.Profile.PengaturanScreen
 import com.example.posyandu.ui.Screen.Profile.ProfilScreen
 import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
@@ -53,7 +55,7 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
     val registerViewModel: RegisterViewModel = viewModel(LocalContext.current as ComponentActivity)
     val anggotaViewModel: AnggotaKeluargaViewModel = viewModel(LocalContext.current as ComponentActivity)
 
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(navController = navController, startDestination = "email") {
         composable("email") {
             RegisterScreen(navController, registerViewModel)
         }
@@ -85,6 +87,17 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
         }
         composable("Login") {
             LoginScreen(navController = navController, viewModel = LoginViewModel())
+        }
+        composable("dashboard") {
+            val beritaRepository = PortalBeritaRepository()
+            val beritaFactory = PortalBeritaViewModelFactory(beritaRepository)
+            val beritaViewModel: PortalBeritaViewModel = viewModel(factory = beritaFactory)
+
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+
+            DashboardScreen(navController = navController, portalBeritaViewModel = beritaViewModel, profilViewModel = viewModel)
         }
         composable("portal-periksa") {backStackEntry ->
             val repository = PortalPeriksaRepository()
@@ -214,6 +227,13 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             val factory = EKMSViewModelFactory(repository)
             val viewModel: EKMSViewModel = viewModel(factory = factory)
             InformasiPerkembanganBalitaScreen(navController, viewModel, nik, option)
+        }
+        composable("profil-anggota") {
+            val repository = PortalPeriksaRepository()
+            val factory = PortalPeriksaViewModelFactory(repository)
+            val viewModel: PortalPeriksaViewModel = viewModel(factory = factory)
+
+            FamilyInfoScreen(navController, viewModel = viewModel)
         }
     }
 }

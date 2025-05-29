@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,9 +39,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.R
+import com.example.posyandu.ui.Screen.components.MainScaffold
 
 @Composable
 fun PortalPeriksaScreen(
@@ -62,18 +67,37 @@ fun PortalPeriksaScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            // Tambahkan TopAppBar jika ingin
-        }
+    MainScaffold(
+        navController = navController,
+        currentRoute = "portal-periksa"
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
                 .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Kembali",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { navController.popBackStack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Portal Pemeriksaan",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0A1D2D)
+                )
+            }
+
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -83,44 +107,57 @@ fun PortalPeriksaScreen(
                     Text("Terjadi kesalahan: $error")
                 }
             } else {
-                LazyColumn {
-                    items(anggota) { item ->
-
-                        // Tentukan gradient sesuai posisi keluarga
-                        val gradient = when (item.posisi_keluarga.lowercase()) {
-                            "anak" -> Brush.linearGradient(
-                                colors = listOf(Color(0xFF81D4FA), Color(0xFF0288D1))
-                            )
-                            "istri", "kepala keluarga" -> Brush.linearGradient(
-                                colors = listOf(Color(0xFFFFCDD2), Color(0xFFD32F2F))
-                            )
-                            else -> Brush.linearGradient(
-                                colors = listOf(Color.Gray, Color.DarkGray)
-                            )
-                        }
-
-                        val iconRes = when (item.posisi_keluarga.lowercase()) {
-                            "anak" -> R.drawable.iconanak
-                            "istri", "kepala keluarga" -> R.drawable.iconibu
-                            else -> R.drawable.iconibu
-                        }
-
-                        PersonCard(
-                            title = item.posisi_keluarga,
-                            name = item.nama_anggota_keluarga,
-                            imageRes = iconRes,
-                            gradient = gradient,
-                            onClick = {
-                                val nik = item.anggota_keluarga_nik
-                                if (!nik.isNullOrEmpty()) {
-                                    navController.navigate("riwayat-pemeriksaan/${userId}/$nik/${item.posisi_keluarga}")
-                                } else {
-                                    Toast.makeText(context, "NIK tidak tersedia untuk ${item.nama_anggota_keluarga}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
+                if (anggota.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Belum ada pemeriksaan untuk anggota yang dipilih.",
+                            color = Color.Gray,
+                            fontSize = 16.sp
                         )
+                    }
+                } else {
+                    LazyColumn {
+                        items(anggota) { item ->
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            // Tentukan gradient sesuai posisi keluarga
+                            val gradient = when (item.posisi_keluarga.lowercase()) {
+                                "anak" -> Brush.linearGradient(
+                                    colors = listOf(Color(0xFF81D4FA), Color(0xFF0288D1))
+                                )
+                                "istri", "kepala keluarga" -> Brush.linearGradient(
+                                    colors = listOf(Color(0xFFFFCDD2), Color(0xFFD32F2F))
+                                )
+                                else -> Brush.linearGradient(
+                                    colors = listOf(Color.Gray, Color.DarkGray)
+                                )
+                            }
+
+                            val iconRes = when (item.posisi_keluarga.lowercase()) {
+                                "anak" -> R.drawable.iconanak
+                                "istri", "kepala keluarga" -> R.drawable.iconibu
+                                else -> R.drawable.iconibu
+                            }
+
+                            PersonCard(
+                                title = item.posisi_keluarga,
+                                name = item.nama_anggota_keluarga,
+                                imageRes = iconRes,
+                                gradient = gradient,
+                                onClick = {
+                                    val nik = item.anggota_keluarga_nik
+                                    if (!nik.isNullOrEmpty()) {
+                                        navController.navigate("riwayat-pemeriksaan/${userId}/$nik/${item.posisi_keluarga}")
+                                    } else {
+                                        Toast.makeText(context, "NIK tidak tersedia untuk ${item.nama_anggota_keluarga}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }

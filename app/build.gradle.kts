@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.compose.material3:material3") // cukup ini
     implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:0.15.1-alpha01")
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
     // Retrofit & Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -77,6 +78,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.9")
 
     // Date Picker
+    implementation("io.github.vanpra.compose-material-dialogs:core:0.8.1-rc")
     implementation("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
 
     // Data Store

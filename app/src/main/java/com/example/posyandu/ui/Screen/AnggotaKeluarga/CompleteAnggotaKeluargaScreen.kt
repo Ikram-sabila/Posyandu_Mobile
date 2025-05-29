@@ -1,5 +1,6 @@
 package com.example.posyandu.ui.Screen.AnggotaKeluarga
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,9 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -61,9 +65,7 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
-//import kotlin.coroutines.jvm.internal.CompletedContinuation.context
-
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun CompleteAnggotaKeluargaScreen(
@@ -182,10 +184,8 @@ fun CompleteAnggotaKeluargaContent(
     }
 
     // Format tanggal tampil di TextField
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-    val tanggalLahirText by remember(tanggalLahir) {
-        mutableStateOf(tanggalLahir.format(formatter))
-    }
+    val tanggalLahir = remember { mutableStateOf<LocalDate?>(null) }
+    val tanggalLahirString = remember { mutableStateOf("") }
 
     // Date Picker Dialog
     val dateDialogState = rememberMaterialDialogState()
@@ -196,13 +196,33 @@ fun CompleteAnggotaKeluargaContent(
 
     val poskoList = listOf("Posko A", "Posko B", "Posko C")
 
+    val context = LocalContext.current
 
+    MaterialDialog(
+        dialogState = dateDialogState,
+        buttons = {
+            positiveButton(text = "Ok")
+            negativeButton(text = "Cancel")
+        }
+    ) {
+        datepicker(
+            initialDate = tanggalLahir.value ?: LocalDate.now(),
+            title = "Pilih Tanggal"
+        ) { date ->
+            tanggalLahir.value = date
+            tanggalLahirString.value = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            Toast.makeText(context, "Tanggal dipilih: ${tanggalLahirString.value}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val scrollState = rememberScrollState()
 
     CompleteAnggotaKeluargaHeader()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 170.dp)
+            .verticalScroll(scrollState)
     ) {
         //card
         Card(
@@ -303,39 +323,55 @@ fun CompleteAnggotaKeluargaContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Label Tanggal Lahir
-                Text(
-                    text = "Tanggal Lahir",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 4.dp)
-                )
+//                Text(
+//                    text = "Tanggal Lahir",
+//                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(bottom = 4.dp)
+//                )
 
                 // TextField untuk menampilkan tanggal yang dipilih
-                TextField(
-                    value = tanggalLahirText,
-                    onValueChange = {}, // read-only, jadi tidak mengubah nilai langsung
-                    readOnly = true,
+//                TextField(
+//                    value = tanggalLahirText,
+//                    onValueChange = {}, // read-only, jadi tidak mengubah nilai langsung
+//                    readOnly = true,
+//                    trailingIcon = {
+//                        Icon(
+//                            imageVector = Icons.Default.CalendarToday,
+//                            contentDescription = "Pilih tanggal"
+//                        )
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clip(RoundedCornerShape(16.dp))
+//                        .background(Color(0xFFF1F1F1))
+//                        .clickable { dateDialogState.show() },
+//                    placeholder = { Text("Pilih Tanggal Lahir") },
+//                    colors = TextFieldDefaults.colors(
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent,
+//                        disabledIndicatorColor = Color.Transparent,
+//                        focusedContainerColor = Color(0xFFF1F1F1),
+//                        unfocusedContainerColor = Color(0xFFF1F1F1),
+//                        disabledContainerColor = Color(0xFFF1F1F1)
+//                    )
+//                )
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+                CustomFormField(
+                    label = "Tanggal Lahir",
+                    value = tanggalLahirString.value,
+                    onValueChange = {},
+                    placeholder = "Pilih tanggal lahir Anda",
                     trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Pilih tanggal"
-                        )
+                        IconButton(onClick = {
+                            dateDialogState.show()
+                        }) {
+                            Icon(Icons.Default.DateRange, contentDescription = null)
+                        }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F1F1))
-                        .clickable { dateDialogState.show() },
-                    placeholder = { Text("Pilih Tanggal Lahir") },
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        disabledContainerColor = Color(0xFFF1F1F1)
-                    )
+                    readOnly = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -438,22 +474,6 @@ fun CompleteAnggotaKeluargaContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
-        }
-    }
-
-    // Date Picker
-    MaterialDialog(
-        dialogState = dateDialogState,
-        buttons = {
-            positiveButton("OK")
-            negativeButton("Batal")
-        }
-    ) {
-        datepicker(
-            initialDate = tanggalLahir,
-            title = "Pilih Tanggal Lahir"
-        ) {
-            onTanggalLahir(it)
         }
     }
 }

@@ -97,7 +97,6 @@ fun EKMSScreen(
         } else {
             LazyColumn{
                 items(anggota) { item ->
-                    // Tentukan gradient sesuai posisi keluarga
                     val gradient = when (item.posisi_keluarga.lowercase()) {
                         "anak" -> Brush.horizontalGradient(
                             listOf(Color(0xFFFFD54F), Color(0xFFFFF176))

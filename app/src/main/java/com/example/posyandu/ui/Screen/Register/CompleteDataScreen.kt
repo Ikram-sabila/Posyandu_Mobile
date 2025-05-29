@@ -3,23 +3,31 @@ package com.example.posyandu.ui.Screen.Register
 //import androidx.compose.ui.text.input.PasswordVisualTransformation
 //import androidx.compose.ui.draw.clip
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,42 +48,83 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Model.Request.JenisKelamin
+import com.example.posyandu.Data.Model.Response.PosyanduItem
 import com.example.posyandu.ui.Screen.components.HeaderBackground
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
-
-
+import androidx.compose.ui.unit.IntSize
 
 @Composable
 fun CompleteDataScreen(
     navController: NavController,
-    viewModel: RegisterViewModel,
+    viewModel: RegisterViewModel = viewModel(),
     onSuccessRegister: () -> Unit
 ) {
-    var nik by remember { mutableStateOf("") }
-    var no_kk by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val nik by viewModel.nik.collectAsState()
+    val no_kk by viewModel.no_kk.collectAsState()
     var tanggalLahir by remember { mutableStateOf(LocalDate.now()) }
     var jenisKelamin by remember { mutableStateOf<JenisKelamin?>(null) }
-    var poskoPosyandu by remember { mutableStateOf("") }
+    var poskoPosyandu by remember { mutableStateOf<PosyanduItem?>(null) }
 
     val password = viewModel.password
     val registerState by viewModel.registerState.collectAsState()
 
+    var hasNavigated by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(Unit) {
+        viewModel.posko()
+    }
+
+    LaunchedEffect(registerState) {
+        if (!hasNavigated) {
+            when (registerState) {
+                is RegisterState.Success -> {
+                    hasNavigated = true
+                    navController.navigate("anggota/$no_kk") {
+                        popUpTo("complete_data") { inclusive = true }
+                    }
+                }
+                is RegisterState.Error -> {
+                    val message = (registerState as RegisterState.Error).error
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
+                else -> {}
+            }
+        }
+    }
+
+    when (registerState) {
+        is RegisterState.Loading -> {
+            CircularProgressIndicator(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center))
+        }
+        else -> {}
+    }
     CompleteDataContent(
         nik = nik,
-        onNikChange = { nik = it },
+        onNikChange = { newNik ->
+            viewModel.saveNik(newNik)
+        },
         no_kk = no_kk,
-        onNo_kk = { no_kk = it },
+        onNo_kk = { newNo_kk ->
+            viewModel.saveNoKk(newNo_kk)
+        },
         jenisKelamin = jenisKelamin,
         onJenisKelamin = { jenisKelamin = it },
         tanggalLahir = tanggalLahir,
@@ -83,19 +133,16 @@ fun CompleteDataScreen(
         onPoskoPosyanduChange = { poskoPosyandu = it },
         registerState = registerState,
         onNext = {
-            Log.d("TAG", "Simpan klik, data: nik=$nik, no_kk=$no_kk, jenisKelamin=$jenisKelamin, tanggalLahir=$tanggalLahir")
-            jenisKelamin?.let { viewModel.saveCompleteData(nik, no_kk, it, tanggalLahir) }
-
-            Log.d("Tag", password)
-            if (password.isNotEmpty()) {
-                Log.d("TAG", "Password ditemukan, proses register dimulai")
-                viewModel.register(password)
-            } else {
-                Log.d("TAG", "Password kosong, tidak bisa register")
+            if (jenisKelamin == null || poskoPosyandu == null || password == null) {
+                Toast.makeText(context, "Lengkapi semua data", Toast.LENGTH_SHORT).show()
+                return@CompleteDataContent
             }
-            navController.navigate("anggota/$no_kk")
+
+            viewModel.saveCompleteData(nik, no_kk, jenisKelamin!!, tanggalLahir, poskoPosyandu!!.id )
+            viewModel.register(password.value)
         },
-        onSuccessRegister = onSuccessRegister
+        onSuccessRegister = onSuccessRegister,
+        viewModel = viewModel
     )
 }
 
@@ -110,28 +157,50 @@ fun CompleteDataContent(
     onJenisKelamin: (JenisKelamin) -> Unit,
     tanggalLahir: LocalDate,
     onTanggalLahir: (LocalDate) -> Unit,
-    poskoPosyandu: String,
-    onPoskoPosyanduChange: (String) -> Unit,
+    poskoPosyandu: PosyanduItem?,
+    onPoskoPosyanduChange: (PosyanduItem) -> Unit,
     registerState: RegisterState,
     onNext: () -> Unit = {},
-    onSuccessRegister: () -> Unit = {}
+    onSuccessRegister: () -> Unit = {},
+    viewModel: RegisterViewModel
 ) {
     CompleteDataHeader()
 
-    // State dropdown
     var expandedJenisKelamin by remember { mutableStateOf(false) }
     var expandedPosko by remember { mutableStateOf(false) }
 
-    // Format tanggal tampil di TextField
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-    val tanggalLahirText by remember(tanggalLahir) {
-        mutableStateOf(tanggalLahir.format(formatter))
-    }
+//    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
-    val poskoList = listOf("Posko A", "Posko B", "Posko C")
+    val tanggalLahir = remember { mutableStateOf<LocalDate?>(null) }
+    val tanggalLahirString = remember { mutableStateOf("") }
 
-    // Date Picker Dialog
+
+    val poskoList by viewModel.poskoState.collectAsState()
+
     val dateDialogState = rememberMaterialDialogState()
+
+    var textFieldSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val context = LocalContext.current
+
+
+
+    MaterialDialog(
+        dialogState = dateDialogState,
+        buttons = {
+            positiveButton(text = "Ok")
+            negativeButton(text = "Cancel")
+        }
+    ) {
+        datepicker(
+            initialDate = tanggalLahir.value ?: LocalDate.now(),
+            title = "Pilih Tanggal"
+        ) { date ->
+            tanggalLahir.value = date
+            tanggalLahirString.value = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            Toast.makeText(context, "Tanggal dipilih: ${tanggalLahirString.value}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -148,11 +217,21 @@ fun CompleteDataContent(
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Input NIK
+                CustomFormField(
+                    label = "No. KK",
+                    value = no_kk,
+                    onValueChange = onNo_kk,
+                    placeholder = "Masukkan NIK"
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+
                 CustomFormField(
                     label = "NIK",
                     value = nik,
@@ -161,7 +240,6 @@ fun CompleteDataContent(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Jenis Kelamin Dropdown
                 Text(
                     text = "Jenis Kelamin",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -169,89 +247,114 @@ fun CompleteDataContent(
                         .fillMaxWidth()
                         .padding(bottom = 4.dp)
                 )
-                TextField(
-                    value = jenisKelamin?.name ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    placeholder = { Text("Pilih Jenis Kelamin") },
-                    trailingIcon = {
-                        IconButton(onClick = { expandedJenisKelamin = !expandedJenisKelamin }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Toggle dropdown"
+
+                Box (modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        textFieldSize = coordinates.size
+                    }
+                ){
+                    TextField(
+                        value = jenisKelamin?.name ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        placeholder = { Text("Pilih Jenis Kelamin") },
+                        trailingIcon = {
+                            IconButton(onClick = { expandedJenisKelamin = !expandedJenisKelamin }) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "Toggle dropdown"
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFFF1F1F1)),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color(0xFFF1F1F1),
+                            unfocusedContainerColor = Color(0xFFF1F1F1),
+                            disabledContainerColor = Color(0xFFF1F1F1)
+                        )
+                    )
+
+                    DropdownMenu(
+                        expanded = expandedJenisKelamin,
+                        onDismissRequest = { expandedJenisKelamin = false },
+                        modifier = Modifier
+                            .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
+                    ) {
+                        JenisKelamin.entries.forEach { jenis ->
+                            DropdownMenuItem(
+                                text = { Text(jenis.name) },
+                                onClick = {
+                                    onJenisKelamin(jenis)
+                                    expandedJenisKelamin = false
+                                },
+                                modifier = Modifier.background(Color.White)
                             )
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F1F1)),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        disabledContainerColor = Color(0xFFF1F1F1)
-                    )
-                )
-                DropdownMenu(
-                    expanded = expandedJenisKelamin,
-                    onDismissRequest = { expandedJenisKelamin = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    JenisKelamin.values().forEach { jenis ->
-                        DropdownMenuItem(
-                            text = { Text(jenis.name) },
-                            onClick = {
-                                onJenisKelamin(jenis)
-                                expandedJenisKelamin = false
-                            }
-                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tanggal Lahir Picker
-                Text(
-                    text = "Tanggal Lahir",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 4.dp)
-                )
-                TextField(
-                    value = tanggalLahirText,
+//                Text(
+//                    text = "Tanggal Lahir",
+//                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(bottom = 4.dp)
+//                )
+
+//                TextField(
+//                    value = tanggalLahirText,
+//                    onValueChange = {},
+//                    readOnly = true,
+//                    trailingIcon = {
+//                        Icon(
+//                            imageVector = Icons.Default.CalendarToday,
+//                            contentDescription = "Select date"
+//                        )
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clip(RoundedCornerShape(16.dp))
+//                        .background(Color(0xFFF1F1F1))
+//                        .clickable {
+//                            dateDialogState.show()
+//                        },
+//                    placeholder = { Text("Pilih Tanggal Lahir") },
+//                    colors = TextFieldDefaults.colors(
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent,
+//                        disabledIndicatorColor = Color.Transparent,
+//                        focusedContainerColor = Color(0xFFF1F1F1),
+//                        unfocusedContainerColor = Color(0xFFF1F1F1),
+//                        disabledContainerColor = Color(0xFFF1F1F1)
+//                    )
+//                )
+                CustomFormField(
+                    label = "Tanggal Lahir",
+                    value = tanggalLahirString.value,
                     onValueChange = {},
-                    readOnly = true,
+                    placeholder = "Pilih tanggal lahir Anda",
                     trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Select date"
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F1F1))
-                        .clickable {
+                        IconButton(onClick = {
                             dateDialogState.show()
-                        },
-                    placeholder = { Text("Pilih Tanggal Lahir") },
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        disabledContainerColor = Color(0xFFF1F1F1)
-                    )
+                        }) {
+                            Icon(Icons.Default.DateRange, contentDescription = null)
+                        }
+                    },
+                    readOnly = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Dropdown Posko Posyandu
                 Text(
                     text = "Posko Posyandu",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -259,53 +362,91 @@ fun CompleteDataContent(
                         .fillMaxWidth()
                         .padding(bottom = 4.dp)
                 )
-                TextField(
-                    value = poskoPosyandu,
-                    onValueChange = {},
-                    readOnly = true,
-                    placeholder = { Text("Pilih Posko Posyandu") },
-                    trailingIcon = {
-                        IconButton(onClick = { expandedPosko = !expandedPosko }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Toggle dropdown"
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F1F1)),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        disabledContainerColor = Color(0xFFF1F1F1)
-                    )
-                )
-                DropdownMenu(
-                    expanded = expandedPosko,
-                    onDismissRequest = { expandedPosko = false },
-                    modifier = Modifier.fillMaxWidth()
+
+                Box (modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        textFieldSize = coordinates.size
+                    }
                 ) {
-                    poskoList.forEach { posko ->
-                        DropdownMenuItem(
-                            text = { Text(posko) },
-                            onClick = {
-                                onPoskoPosyanduChange(posko)
-                                expandedPosko = false
+
+                    TextField(
+                        value = poskoPosyandu?.nama ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        placeholder = { Text("Pilih Posko Posyandu") },
+                        trailingIcon = {
+                            IconButton(onClick = { expandedPosko = !expandedPosko }) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "Toggle dropdown"
+                                )
                             }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFFF1F1F1)),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color(0xFFF1F1F1),
+                            unfocusedContainerColor = Color(0xFFF1F1F1),
+                            disabledContainerColor = Color(0xFFF1F1F1)
                         )
+                    )
+
+                    DropdownMenu(
+                        expanded = expandedPosko,
+                        onDismissRequest = { expandedPosko = false },
+                        modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
+                    ) {
+                        when (poskoList) {
+                            is PoskoState.Success -> {
+                                val poskoData = (poskoList as PoskoState.Success).poskoList
+                                if (poskoData.isEmpty()) {
+                                    DropdownMenuItem(
+                                        text = { Text("Tidak ada data posyandu") },
+                                        onClick = {}
+                                    )
+                                } else {
+                                    poskoData.forEach { posko ->
+                                        DropdownMenuItem(
+                                            text = { Text(posko.nama) },
+                                            onClick = {
+                                                onPoskoPosyanduChange(posko)
+                                                expandedPosko = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            is PoskoState.Loading -> {
+                                DropdownMenuItem(
+                                    text = { Text("Memuat...") },
+                                    onClick = {}
+                                )
+                            }
+                            is PoskoState.Error -> {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            (poskoList as PoskoState.Error).error.take(50) + "..."
+                                        )
+                                    },
+                                    onClick = {}
+                                )
+                            }
+                            else -> {}
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Tombol Lanjut
                 Button(
-                    onClick = onNext, //ubah ini
+                    onClick = onNext,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005F6B)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -315,22 +456,6 @@ fun CompleteDataContent(
                     Text("Selanjutnya", color = Color.White)
                 }
             }
-        }
-    }
-
-    // Material Date Picker Dialog
-    MaterialDialog(
-        dialogState = dateDialogState,
-        buttons = {
-            positiveButton("OK")
-            negativeButton("Batal")
-        }
-    ) {
-        datepicker(
-            initialDate = tanggalLahir,
-            title = "Pilih Tanggal Lahir"
-        ) {
-            onTanggalLahir(it)
         }
     }
 }
@@ -356,6 +481,10 @@ fun CompleteDataHeader() {
 @Preview(showBackground = true)
 @Composable
 fun CompleteDataPreview() {
+    val dummyPosko = PosyanduItem(id = 0, nama = "Posko Contoh")
+
+    val dummyViewModel = object : RegisterViewModel() {}
+
     CompleteDataContent(
         nik = "",
         onNikChange = {},
@@ -365,8 +494,9 @@ fun CompleteDataPreview() {
         onJenisKelamin = {},
         tanggalLahir = LocalDate.now(),
         onTanggalLahir = {},
-        poskoPosyandu = "",
+        poskoPosyandu = dummyPosko,
         onPoskoPosyanduChange = {},
-        registerState = RegisterState.Idle
+        registerState = RegisterState.Idle,
+        viewModel = dummyViewModel
     )
 }

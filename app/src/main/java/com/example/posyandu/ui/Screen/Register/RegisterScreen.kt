@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +58,9 @@ fun RegisterScreen(
     navController: NavController,
     viewModel: RegisterViewModel,
 ) {
-    var email by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    val email by viewModel.email.collectAsState()
+    val name by viewModel.name.collectAsState()
+    val phone by viewModel.phone.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -77,11 +78,18 @@ fun RegisterScreen(
         // Register content ditaruh di atas background
         RegisterContent(
             email = email,
-            onEmailChange = { email = it },
+            onEmailChange = { newEmail ->
+                viewModel.saveRegisterInfo(newEmail, name, phone)
+            },
             name = name,
-            onNameChange = { name = it },
+            onNameChange = {newName ->
+                viewModel.saveRegisterInfo(email, newName, phone)
+
+            },
             phone = phone,
-            onPhoneChange = { phone = it },
+            onPhoneChange = { newPhone ->
+                viewModel.saveRegisterInfo(email, name, newPhone)
+            },
             onNext = {
                 coroutineScope.launch {
                     println("Email: $email, Name: $name, Phone: $phone")
@@ -89,6 +97,9 @@ fun RegisterScreen(
                     delay(100)
                     navController.navigate("password")
                 }
+            },
+            onNextMore = {
+                navController.navigate("Login")
             }
         )
     }
@@ -103,7 +114,8 @@ fun RegisterContent(
     onNameChange: (String) -> Unit,
     phone: String,
     onPhoneChange: (String) -> Unit,
-    onNext: () -> Unit = {}
+    onNext: () -> Unit = {},
+    onNextMore: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -207,7 +219,7 @@ fun RegisterContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Sudah memiliki akun?")
-            TextButton(onClick = onNext) { //ubah onNext jadi onLogin
+            TextButton(onClick = onNextMore) {
                 Text("Masuk", color = Color(0xFFFF9800))
             }
         }

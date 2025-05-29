@@ -1,11 +1,13 @@
 package com.example.posyandu.ui.Screen.PortalPeriksa
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
@@ -23,9 +25,9 @@ import com.example.posyandu.Data.Local.UserPreferences
 
 @Composable
 fun CardRiwayatItem(
-    date: String,
-    judul: String,
-    alamat: String,
+    date: String?,
+    judul: String?,
+    alamat: String?,
     onClick: () -> Unit
 ) {
     Card(
@@ -37,7 +39,7 @@ fun CardRiwayatItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = date, fontWeight = FontWeight.Bold, color = Color(0xFF1A3C40))
+            Text(text = date ?: "-", fontWeight = FontWeight.Bold, color = Color(0xFF1A3C40))
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -54,7 +56,7 @@ fun CardRiwayatItem(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = judul, fontSize = 14.sp)
+                        Text(text = judul ?: "-", fontSize = 14.sp)
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -67,7 +69,7 @@ fun CardRiwayatItem(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = alamat, fontSize = 14.sp)
+                        Text(text = alamat ?: "-", fontSize = 14.sp)
                     }
                 }
 
@@ -110,47 +112,76 @@ fun RiwayatPemeriksaanScreen(
         }
     }
 
-    when {
-        isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFF0F0F0))
+        .padding(top = 16.dp)) {
 
-        errorMessage != null -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Terjadi kesalahan: $errorMessage")
-            }
-        }
-
-        riwayat.isEmpty() -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Tidak ada riwayat pemeriksaan.")
-            }
-        }
-
-        else -> {
-            LazyColumn(
+        // Header (Back + Title)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = 16.dp, bottom = 16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Kembali",
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color(0xFFF0F0F0))
-                    .padding(vertical = 16.dp)
-            ) {
-                items(riwayat) { item ->
-                    CardRiwayatItem(
-                        date = item.tanggal,
-                        judul = item.judul_berita,
-                        alamat = item.lokasi_pelaksanaan,
-                        onClick = {
-                            val id = item.id
-                            navController.navigate("pemeriksaan/${id}")
-                        }
-                    )
+                    .size(24.dp)
+                    .clickable { navController.popBackStack() }
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "Riwayat Pemeriksaan",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0A1D2D)
+            )
+        }
+
+        // Konten utama
+        when {
+            isLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            errorMessage != null -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Terjadi kesalahan: $errorMessage")
+                }
+            }
+
+            riwayat.isEmpty() -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Tidak ada riwayat pemeriksaan.")
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 8.dp)
+                ) {
+                    items(riwayat) { item ->
+                        CardRiwayatItem(
+                            date = item.tanggal,
+                            judul = item.judul_berita,
+                            alamat = item.lokasi_pelaksanaan,
+                            onClick = {
+                                val id = item.id
+                                navController.navigate("pemeriksaan/${id}")
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

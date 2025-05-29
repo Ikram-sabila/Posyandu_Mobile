@@ -216,7 +216,7 @@ fun ButtonBar(
         Icons.Default.Person
     )
 
-    val description = listOf("Home", "Heart", "Calendar", "Profile")
+    val description = listOf("Home", "Pemeriksaan", "Berita", "Profile")
 
     Surface(
         tonalElevation = 10.dp,

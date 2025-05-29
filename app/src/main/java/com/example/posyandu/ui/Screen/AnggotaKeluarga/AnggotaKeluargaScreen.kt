@@ -65,6 +65,9 @@ fun AnggotaKeluargaScreen(
                     println("Posisi keluarga belum dipilih")
                 }
             }
+        },
+        onNextMore = {
+            navController.navigate("Login")
         }
     )
 }
@@ -73,7 +76,8 @@ fun AnggotaKeluargaScreen(
 fun RegisterContent(
     posisiKeluarga: PosisiKeluarga?,
     onPosisiKeluagaChange: (PosisiKeluarga) -> Unit,
-    onNext: () -> Unit = {}
+    onNext: () -> Unit = {},
+    onNextMore: () -> Unit = {}
 ) {
     AnggotaKeluargaHeader()
 
@@ -125,12 +129,12 @@ fun RegisterContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedButton(
-                        onClick = onNext,
+                        onClick = onNextMore,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFF005F6B) // warna teks dan stroke
+                            contentColor = Color(0xFF005F6B)
                         ),
-                        border = BorderStroke(1.dp, Color(0xFF005F6B)) // warna garis stroke
+                        border = BorderStroke(1.dp, Color(0xFF005F6B))
                     ) {
                         androidx.compose.material3.Text("Lewati")
                     }
@@ -178,6 +182,7 @@ fun RegisterPreview() {
     RegisterContent(
         posisiKeluarga = null,
         onPosisiKeluagaChange = {},
-        onNext = {}
+        onNext = {},
+        onNextMore = {}
     )
 }

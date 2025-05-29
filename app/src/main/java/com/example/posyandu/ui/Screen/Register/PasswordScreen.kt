@@ -1,6 +1,7 @@
 package com.example.posyandu.ui.Screen.Register
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,6 +55,8 @@ fun PasswordScreen(
     var repeatPassword by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+
     PasswordContent(
         password = password,
         onPasswordChange = { password = it },
@@ -68,6 +72,7 @@ fun PasswordScreen(
                 }
             } else {
                 println("Password dan Repeat Password tidak cocok!")
+                Toast.makeText(context, "Password dan Ulangi Password tidak cocok!", Toast.LENGTH_LONG).show()
             }
         }
     )

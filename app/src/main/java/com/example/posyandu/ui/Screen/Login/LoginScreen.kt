@@ -1,6 +1,7 @@
 package com.example.posyandu.ui.Screen.Login
 
 //import androidx.compose.material3.*
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -72,7 +73,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("riwayat-ekms") {
+            navController.navigate("profil-anggota") {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -85,6 +86,9 @@ fun LoginScreen(
         onPasswordChange = { viewModel.password.value = it },
         onNext = {
             viewModel.login(context)
+        },
+        onNextMore = {
+            navController.navigate("email")
         }
     )
 
@@ -94,11 +98,21 @@ fun LoginScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
-        is LoginState.Error -> {
-            val errorMessage = (loginState as LoginState.Error).message
-            Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(8.dp))
-        }
+        is LoginState.Error -> {}
         else -> {}
+    }
+
+    val showErrorToast by viewModel.showErrorToast.collectAsState()
+
+    LaunchedEffect(showErrorToast) {
+        if (showErrorToast) {
+            Toast.makeText(
+                context,
+                "Email atau Password salah!",
+                Toast.LENGTH_SHORT
+            ).show()
+            viewModel.resetErrorToast()
+        }
     }
 }
 
@@ -108,7 +122,8 @@ fun LoginContent(
     onEmailChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
-    onNext: () -> Unit = {}
+    onNext: () -> Unit = {},
+    onNextMore: () -> Unit = {}
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(

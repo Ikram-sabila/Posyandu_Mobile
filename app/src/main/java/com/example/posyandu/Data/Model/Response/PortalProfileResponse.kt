@@ -11,6 +11,7 @@ data class PortalProfileResponseData(
     val nama_lengkap: String?,
     val no_telp: String?,
     val nik: String?,
+    val posisi_keluarga: String?,
     val tanggal_lahir: String?,
     val jenis_kelamin: String?
 )

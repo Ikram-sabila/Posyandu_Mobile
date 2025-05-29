@@ -11,6 +11,7 @@ import com.example.posyandu.Data.Model.Response.WargaData
 import com.example.posyandu.Data.Remote.Client.ApiClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
@@ -19,6 +20,13 @@ class LoginViewModel : ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
+
+    private val _showErrorToast = MutableStateFlow(false)
+    val showErrorToast = _showErrorToast.asStateFlow()
+
+    fun resetErrorToast() {
+        _showErrorToast.value = false
+    }
 
     fun login(context: Context) {
         viewModelScope.launch {
@@ -31,6 +39,7 @@ class LoginViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse != null) {
+                        _showErrorToast.value = false
                         val user = loginResponse.user
                         Log.d("LoginResponse", "Body: $loginResponse")
                         Log.d("LoginResponse", "User from response: $user")
@@ -72,10 +81,12 @@ class LoginViewModel : ViewModel() {
                     Log.e("Login", "Gagal login: $errorCode - $errorBody")
 
                     _loginState.value = LoginState.Error("Login gagal: $errorCode - $errorBody")
+                    _showErrorToast.value = true
                 }
             } catch (e: Exception) {
                 Log.e("Login", "Exception saat login: ${e.message}", e)
                 _loginState.value = LoginState.Error("Terjadi kesalahan: ${e.message}")
+                _showErrorToast.value = true
             }
         }
     }
