@@ -1,4 +1,4 @@
-package com.example.posyandu.ui.screen.onBoarding
+package com.example.posyandu.ui.Screen.onBoarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.posyandu.R
 
 data class OnBoardingPage(
@@ -40,7 +41,9 @@ data class OnBoardingPage(
 )
 
 @Composable
-fun onBoardingScreen() {
+fun OnBoardingScreen(
+    navController: NavController
+) {
     val pages = listOf(
         OnBoardingPage(
             title = "PosyanduCare",
@@ -132,7 +135,7 @@ fun onBoardingScreen() {
                         if (currentPage < pages.lastIndex) {
                             currentPage++
                         } else {
-                            // Aksi saat onboarding selesai
+                            navController.navigate("email")
                         }
                     },
                 contentAlignment = Alignment.Center
@@ -159,6 +162,6 @@ fun onBoardingPage3() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewOnboardingScreen() {
-    onBoardingScreen()
+//    onBoardingScreen()
 }
 

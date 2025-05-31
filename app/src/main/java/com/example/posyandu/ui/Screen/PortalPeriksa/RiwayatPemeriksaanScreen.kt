@@ -1,6 +1,7 @@
 package com.example.posyandu.ui.Screen.PortalPeriksa
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -148,8 +150,8 @@ fun RiwayatPemeriksaanScreen(
             }
 
             errorMessage != null -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Terjadi kesalahan: $errorMessage")
+                Box(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp), contentAlignment = Alignment.Center) {
+                    RiwayatKosongCard()
                 }
             }
 
@@ -178,6 +180,33 @@ fun RiwayatPemeriksaanScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun RiwayatKosongCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF8F9FA))
+            .border(1.dp, Color(0xFFCCCCCC), RoundedCornerShape(16.dp))
+            .padding(16.dp)
+    ) {
+        Column {
+            Text(
+                text = "Riwayat Pemeriksaan",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF08607A)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Anggota belum melakukan pemeriksaan.",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
         }
     }
 }

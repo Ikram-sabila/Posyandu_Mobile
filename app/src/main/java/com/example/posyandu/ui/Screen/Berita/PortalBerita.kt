@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.CalendarViewDay
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Place
 
@@ -41,9 +42,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Response.PortalBeritaItem
+import com.example.posyandu.ui.Screen.Dashboard.JadwalKosongCard
 import com.example.posyandu.ui.Screen.components.MainScaffold
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @Composable
@@ -61,7 +65,7 @@ fun PortalBeritaScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     MainScaffold(
         navController = navController,
@@ -96,8 +100,16 @@ fun PortalBeritaScreen(
             }
 
             when (uiState) {
-                is UiState.Loading -> CircularProgressIndicator()
-                is UiState.Error -> Text("Gagal: ${(uiState as UiState.Error).message}")
+                is UiState.Loading -> Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+                is UiState.Error -> {
+                    JadwalKosongCard()
+                }
                 is UiState.Success<*> -> {
                     val data = (uiState as UiState.Success<List<PortalBeritaItem>>).data
                     if (data.isEmpty()) {
@@ -105,56 +117,51 @@ fun PortalBeritaScreen(
                     } else {
                         val today = LocalDate.now()
                         val beritaSekarang = data.filter {
-                            try {
-                                LocalDate.parse(it.tanggal, formatter) <= today
-                            } catch (e: Exception) {
-                                true
-                            }
-                        }
-                        val beritaMendatang = data.filter {
-                            try {
-                                LocalDate.parse(it.tanggal, formatter) > today
-                            } catch (e: Exception) {
-                                false
-                            }
+                            val tanggal = parseLocalDateFromString(it.tanggal)
+                            tanggal == null || !tanggal.isAfter(today)
                         }
 
-                        // Berita Minggu Ini
-                        Text("Minggu Ini", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        beritaSekarang.forEach {
-                            NewsCard(
-                                title = it.judul,
-                                location = it.tempat ?: "-",
-                                date = it.tanggal,
-                                backgroundColor = Color(0xFFE1F1F8),
-                                buttonColor = Color(0xFFFFA800),
-                                onDetailClick = {
-                                    navController.navigate("berita-detail/${it.id}")
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
+                        val beritaMendatang = data.filter {
+                            val tanggal = parseLocalDateFromString(it.tanggal)
+                            tanggal != null && tanggal.isAfter(today)
                         }
 
                         if (beritaMendatang.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Divider()
-                            Spacer(modifier = Modifier.height(12.dp))
                             Text("Akan Datang", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             beritaMendatang.forEach {
                                 NewsCard(
                                     title = it.judul,
                                     location = it.tempat ?: "-",
-                                    date = it.tanggal,
-                                    backgroundColor = Color(0xFFF0F2F2),
-                                    buttonColor = Color.Gray,
+                                    date = formatTanggalIndonesia(it.tanggal),
+                                    backgroundColor = Color(0xFFE1F1F8),
+                                    buttonColor = Color(0xFFFFA800),
                                     onDetailClick = {
                                         navController.navigate("berita-detail/${it.id}")
                                     }
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Divider()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        Text("Telah Lewat", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        beritaSekarang.forEach {
+                            NewsCard(
+                                title = it.judul,
+                                location = it.tempat ?: "-",
+                                date = formatTanggalIndonesia(it.tanggal),
+                                backgroundColor = Color(0xFFF0F2F2), // grey-ish background
+                                buttonColor = Color.Gray,
+                                onDetailClick = {
+                                    navController.navigate("berita-detail/${it.id}")
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
                 }
@@ -195,7 +202,7 @@ fun NewsCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Outlined.Call,
+                        imageVector = Icons.Outlined.CalendarViewDay,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
@@ -220,6 +227,44 @@ fun NewsCard(
             }
         }
     }
+}
+
+fun formatTanggalIndonesia(tanggal: String): String {
+    val formats = listOf(
+        "dd-MM-yyyy",
+        "yyyy-MM-dd",
+        "dd/MM/yyyy"
+    )
+
+    for (format in formats) {
+        try {
+            val inputFormat = SimpleDateFormat(format, Locale.US)
+            inputFormat.isLenient = false
+            val date = inputFormat.parse(tanggal)
+            if (date != null) {
+                val outputFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                return outputFormat.format(date)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    return tanggal
+}
+
+fun parseLocalDateFromString(dateString: String): LocalDate? {
+    val formatters = listOf(
+        DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+        DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    )
+
+    for (formatter in formatters) {
+        try {
+            return LocalDate.parse(dateString, formatter)
+        } catch (_: Exception) { }
+    }
+    return null
 }
 
 @Composable

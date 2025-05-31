@@ -111,7 +111,7 @@ fun FamilyInfoScreen(
                                 role = item.posisi_keluarga,
                                 nik = item.anggota_keluarga_nik,
                                 onClick = { nik ->
-                                    navController.navigate("detail_anggota/$nik")
+                                    navController.navigate("profil-anggota/$nik")
                                 }
                             )
 

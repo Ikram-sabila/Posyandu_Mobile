@@ -92,7 +92,9 @@ fun EKMSBalitaScreen(
         // Informasi Balita
         when(loadUiState) {
             is LoadUiState.Loading -> Text(text = "Sedang mengambil data")
-            is LoadUiState.Error -> Text("Terjadi kesalahan: ${(loadUiState as LoadUiState.Error).message}")
+            is LoadUiState.Error -> {
+                EKMSKosongCard()
+            }
             is LoadUiState.Success -> {
                 val data = (loadUiState as LoadUiState.Success).data
 
@@ -127,7 +129,7 @@ fun EKMSBalitaScreen(
 
             is PerkembanganUiState.Error -> {
                 val error = (getPerkembanganUiState as PerkembanganUiState.Error).message
-                Text("Error: $error", color = Color.Red)
+//                Text("Error: $error", color = Color.Red)
             }
 
             is PerkembanganUiState.Success -> {
@@ -145,20 +147,20 @@ fun EKMSBalitaScreen(
                     }
 
                     TabelPemeriksaanBalita(tableData = tableData, navController, nik)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text("Imunisasi dan Suplemen", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    SuplemenCardBalita("Imunisasi", Color(0xFFE8E5FF), onClick = {navController.navigate("riwayat-ekms/$nik/3")})
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SuplemenCardBalita("Suplemen Tambahan", Color(0xFFFFF2CF), onClick = {navController.navigate("riwayat-ekms/$nik/4")})
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SuplemenCardBalita("Vitamin", Color(0xFFFFE0E5), onClick = {navController.navigate("riwayat-ekms/$nik/2")})
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text("Imunisasi dan Suplemen", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SuplemenCardBalita("Imunisasi", Color(0xFFE8E5FF), onClick = {navController.navigate("riwayat-ekms/$nik/3")})
-        Spacer(modifier = Modifier.height(8.dp))
-        SuplemenCardBalita("Suplemen Tambahan", Color(0xFFFFF2CF), onClick = {navController.navigate("riwayat-ekms/$nik/4")})
-        Spacer(modifier = Modifier.height(8.dp))
-        SuplemenCardBalita("Vitamin", Color(0xFFFFE0E5), onClick = {navController.navigate("riwayat-ekms/$nik/2")})
     }
 }
 
@@ -269,6 +271,33 @@ fun InfoRowWithIconBalita(
             }
         } else {
             Text(value)
+        }
+    }
+}
+
+@Composable
+fun EKMSKosongCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF8F9FA))
+            .border(1.dp, Color(0xFFCCCCCC), RoundedCornerShape(16.dp))
+            .padding(vertical = 16.dp, horizontal = 16.dp)
+    ) {
+        Column {
+            Text(
+                text = "EKMS Belum Tersedia",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF08607A)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Belum ada pemeriksaan untuk anggota terkait.",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
         }
     }
 }

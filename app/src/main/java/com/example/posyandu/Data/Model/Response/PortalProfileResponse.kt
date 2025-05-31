@@ -30,13 +30,22 @@ data class UserEmailResponse(
 )
 
 data class WargaResponse(
+    val id: Int,
     val nama_lengkap: String?,
+    val nama_anggota_keluarga: String?,
     val no_telp: String?,
     val nik: String?,
+    val posisi_keluarga: String?,
     val tanggal_lahir: String?,
     val jenis_kelamin: String?
 )
 
 data class UpdatePasswordResponse(
     val message: String
+)
+
+data class PosyanduDetailResponse(
+    val nama_posyandu: String,
+    val alamat: String,
+    val jumlah_keluarga: Int
 )

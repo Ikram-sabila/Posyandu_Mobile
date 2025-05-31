@@ -2,6 +2,7 @@ package com.example.posyandu.ui.Screen.Profile
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,6 +51,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Request.PortalProfileRequest
@@ -62,7 +65,8 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    viewModel: ProfilViewModel
+    viewModel: ProfilViewModel,
+    navController: NavController
 ) {
     val updateState = viewModel.updateState
     val profileState by viewModel.profileState.collectAsState()
@@ -104,6 +108,21 @@ fun EditProfileScreen(
         } else {}
     }
 
+    when (updateState) {
+        is UpdateProfileState.Loading -> {
+            CircularProgressIndicator()
+        }
+        is UpdateProfileState.Success -> {
+            Toast.makeText(context, "Perubahan telah disimpan", Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+        is UpdateProfileState.Error -> {
+            Toast.makeText(context, (updateState as UpdateProfileState.Error).message, Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+        else -> {}
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,7 +138,8 @@ fun EditProfileScreen(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Kembali",
-                modifier = Modifier.padding(end = 15.dp) // beri jarak ke teks
+                modifier = Modifier.padding(end = 15.dp)
+                    .clickable { navController.popBackStack() }
             )
             Text(
                 text = "Edit Profil",

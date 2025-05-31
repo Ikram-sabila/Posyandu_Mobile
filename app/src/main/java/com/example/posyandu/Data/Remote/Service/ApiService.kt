@@ -22,6 +22,7 @@ import com.example.posyandu.Data.Model.Response.PortalBeritaResponse
 import com.example.posyandu.Data.Model.Response.PortalEkmsResponse
 import com.example.posyandu.Data.Model.Response.PortalPeriksaResponse
 import com.example.posyandu.Data.Model.Response.PortalProfileResponse
+import com.example.posyandu.Data.Model.Response.PosyanduDetailResponse
 import com.example.posyandu.Data.Model.Response.PosyanduItem
 import com.example.posyandu.Data.Model.Response.PosyanduResponse
 import com.example.posyandu.Data.Model.Response.RegisterResponse
@@ -164,10 +165,22 @@ interface ApiService {
         @Header("Accept") accept: String = "application/json"
     ): Response<DataResponse>
 
-    @PATCH("api/auth/warga/update-profil-anggota/{id}")
+    @PATCH("api/auth/warga/profil/anggota/{nik}")
     suspend fun updateProfileAnggota(
         @Header("Authorization")  bearerToken: String,
-        @Path("id") id: Int,
+        @Path("nik") nik: String,
         @Body request: PortalProfileAnggotaRequest
     ): Response<PortalProfileResponse>
+
+    @GET("api/auth/warga/profil/anggota/{nik}")
+    suspend fun getProfileAnggota(
+        @Header("Authorization")  bearerToken: String,
+        @Path("nik") nik: String
+    ): Response<WargaResponse>
+
+    @GET("api/auth/warga/posyandu/{no_kk}")
+    suspend fun getPosyandu(
+        @Header("Authorization")  bearerToken: String,
+        @Path("no_kk") no_kk: String
+    ): Response<PosyanduDetailResponse>
 }

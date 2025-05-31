@@ -396,41 +396,41 @@ fun CompleteAnggotaKeluargaContent(
                 }
 
                 // Label teks "Posko Posyandu"
-                Text(
-                    text = "Posko Posyandu",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 4.dp)
-                )
-
-                // TextField yang tampil sebagai input read-only untuk menampilkan pilihan posko
-                TextField(
-                    value = poskoPosyandu,  // teks yang tampil, misalnya "Posko A"
-                    onValueChange = {},      // karena read-only, tidak ada perubahan input manual
-                    readOnly = true,
-                    placeholder = { Text("Pilih Posko Posyandu") },  // teks placeholder jika belum ada pilihan
-                    trailingIcon = {
-                        IconButton(onClick = { expandedPosko = !expandedPosko }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Toggle dropdown"
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F1F1)),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        disabledContainerColor = Color(0xFFF1F1F1)
-                    )
-                )
+//                Text(
+//                    text = "Posko Posyandu",
+//                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(bottom = 4.dp)
+//                )
+//
+//                // TextField yang tampil sebagai input read-only untuk menampilkan pilihan posko
+//                TextField(
+//                    value = poskoPosyandu,  // teks yang tampil, misalnya "Posko A"
+//                    onValueChange = {},      // karena read-only, tidak ada perubahan input manual
+//                    readOnly = true,
+//                    placeholder = { Text("Pilih Posko Posyandu") },  // teks placeholder jika belum ada pilihan
+//                    trailingIcon = {
+//                        IconButton(onClick = { expandedPosko = !expandedPosko }) {
+//                            Icon(
+//                                imageVector = Icons.Default.ArrowDropDown,
+//                                contentDescription = "Toggle dropdown"
+//                            )
+//                        }
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clip(RoundedCornerShape(16.dp))
+//                        .background(Color(0xFFF1F1F1)),
+//                    colors = TextFieldDefaults.colors(
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent,
+//                        disabledIndicatorColor = Color.Transparent,
+//                        focusedContainerColor = Color(0xFFF1F1F1),
+//                        unfocusedContainerColor = Color(0xFFF1F1F1),
+//                        disabledContainerColor = Color(0xFFF1F1F1)
+//                    )
+//                )
 
                 // Dropdown menu yang muncul saat icon dropdown diklik
                 DropdownMenu(

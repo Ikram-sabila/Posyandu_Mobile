@@ -53,6 +53,12 @@ import androidx.compose.ui.unit.dp
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.R
 import com.example.posyandu.ui.Screen.components.MainScaffold
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Headset
+import androidx.compose.material.icons.filled.HelpOutline
 
 
 @Composable
@@ -68,9 +74,13 @@ fun ProfilScreen(navController: NavController) {
         currentRoute = "profil"
     ) {
         paddingValues ->
+
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .background(Color.White)
         ) {
@@ -172,27 +182,60 @@ fun ProfilScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                ProfileMenuItem(
-                    icon = Icons.Default.Person,
-                    text = "Edit informasi profil",
+                ProfileMenuSection(
+                    items = listOf(
+                        Icons.Default.Person to "Edit informasi profil",
+                        Icons.Default.Group to "Informasi Anggota Keluarga"
+                    ),
                     onClick = {
-                        navController.navigate("edit-profile")
+                        when (it) {
+                            "Edit informasi profil" -> navController.navigate("edit-profile")
+                            "Informasi Anggota Keluarga" -> navController.navigate("profil-anggota")
+                        }
                     }
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                ProfileMenuItem(
-                    icon = Icons.Default.Lock,
-                    text = "Pengaturan Akun",
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ProfileMenuSection(
+                    items = listOf(
+                        Icons.Default.Lock to "Pengaturan Akun",
+                        Icons.AutoMirrored.Filled.HelpOutline to "FAQ",
+                        Icons.Default.Headset to "Help Desk"
+                    ),
                     onClick = {
-                        navController.navigate("pengaturan")
+                        when (it) {
+                            "Pengaturan Akun" -> navController.navigate("pengaturan")
+                            "FAQ" -> navController.navigate("FAQ")
+                            "Help Desk" -> navController.navigate("Help-Desk")
+                        }
                     }
                 )
+
+//                Spacer(modifier = Modifier.height(16.dp))
+//                ProfileMenuItem(
+//                    icon = Icons.Default.Person,
+//                    text = "Edit informasi profil",
+//                    onClick = {
+//                        navController.navigate("edit-profile")
+//                    }
+//                )
+//                Spacer(modifier = Modifier.height(12.dp))
+//                ProfileMenuItem(
+//                    icon = Icons.Default.Lock,
+//                    text = "Pengaturan Akun",
+//                    onClick = {
+//                        navController.navigate("pengaturan")
+//                    }
+//                )
                 Spacer(modifier = Modifier.height(24.dp))
                 ProfileMenuItem(
                     icon = Icons.Default.ExitToApp,
                     text = "Keluar",
                     onClick = {}
                 )
+
+                Spacer(modifier = Modifier.height(34.dp))
             }
         }
     }
@@ -225,6 +268,31 @@ fun ProfileMenuItem(icon: ImageVector, text: String, onClick: () -> Unit) {
         )
     }
 }
+
+@Composable
+fun ProfileMenuSection(items: List<Pair<ImageVector, String>>, onClick: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
+            .padding(vertical = 8.dp)
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp))
+    ) {
+        items.forEachIndexed { index, item ->
+            ProfileMenuItem(
+                icon = item.first,
+                text = item.second,
+                onClick = { onClick(item.second) }
+            )
+
+            if (index != items.lastIndex) {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
 
 
 @Preview(showBackground = true)

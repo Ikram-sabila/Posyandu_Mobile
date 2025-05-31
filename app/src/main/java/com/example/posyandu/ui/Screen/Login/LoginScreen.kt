@@ -19,11 +19,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,7 +80,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navController.navigate("profil-anggota") {
+            navController.navigate("dashboard") {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -88,7 +95,7 @@ fun LoginScreen(
             viewModel.login(context)
         },
         onNextMore = {
-            navController.navigate("email")
+            navController.navigate("onboarding")
         }
     )
 
@@ -194,15 +201,23 @@ fun LoginContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        var passwordVisible by remember { mutableStateOf(false) }
+
         // Password
         FormInput(
             label = "Password",
             value = password,
             onValueChange = onPasswordChange,
             placeholder = "Masukkan password Anda",
-            trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Password") },
             keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (passwordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            }
         )
 
 
@@ -241,7 +256,7 @@ fun LoginContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Belum memiliki Akun?")
-            TextButton(onClick = onNext) { //ubah onNext jadi onRegister
+            TextButton(onClick = onNextMore) {
                 Text("Daftar", color = Color(0xFFFF9800))
 
             }

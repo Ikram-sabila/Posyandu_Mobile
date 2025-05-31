@@ -1,6 +1,7 @@
 package com.example.posyandu.ui.Screen.Profile
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -20,27 +21,79 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.example.posyandu.Data.Local.UserPreferences
+import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
 
 class EditFamilyMemberActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            EditFamilyMemberScreen()
+//            EditFamilyMemberScreen()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditFamilyMemberScreen() {
-    var name by remember { mutableStateOf("") }
-    var nik by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("") }
-    var birthDate by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var posyandu by remember { mutableStateOf("") }
+fun EditFamilyMemberScreen(
+    navController: NavController,
+    viewModel: ProfilViewModel,
+    oldNik: String
+) {
+    val context = LocalContext.current
+
+    val name = remember { mutableStateOf("") }
+    val nik = remember { mutableStateOf("") }
+    val status = remember { mutableStateOf("") }
+    val birthDate = remember { mutableStateOf("") }
+    val gender = remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+
+    val token by UserPreferences.getToken(context).collectAsState(initial = "")
+    val id by UserPreferences.getUserId(context).collectAsState(initial = 0)
+
+    val profileState by viewModel.profileAnggotaState.collectAsState()
+    val anggotaProfileState by viewModel.updateAnggotaState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (!token.isNullOrEmpty()) {
+            val bearerToken = "Bearer $token"
+            viewModel.getAnggotaProfile(bearerToken, oldNik)
+        }
+    }
+
+    LaunchedEffect(profileState) {
+        if (profileState is GetAnggotaProfileState.Success) {
+            val profile = (profileState as GetAnggotaProfileState.Success).data
+            name.value = profile.nama_anggota_keluarga ?: "-"
+            nik.value = profile.nik ?: "-"
+            status.value = profile.posisi_keluarga ?: "-"
+            birthDate.value = profile.tanggal_lahir ?: "-"
+            gender.value = profile.jenis_kelamin ?: "-"
+        }
+    }
+
+    when(anggotaProfileState) {
+        is UpdateProfileState.Loading -> {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+                color = Color.Blue
+            )
+        }
+        is UpdateProfileState.Success -> {
+            Toast.makeText(context, "Profil anggota berhasil diperbarui", Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+        is UpdateProfileState.Error -> {
+            val message = (anggotaProfileState as UpdateProfileState.Error).message
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+        else -> {}
+    }
 
     val genderOptions = listOf("Laki-laki", "Perempuan")
 
@@ -49,10 +102,12 @@ fun EditFamilyMemberScreen() {
             TopAppBar(
                 title = { Text("Edit Informasi Anggota Keluarga") },
                 navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Kembali"
-                    )
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali",
+                        )
+                    }
                 }
             )
         }
@@ -64,89 +119,102 @@ fun EditFamilyMemberScreen() {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            FieldWithIcon(
-                value = name,
-                onValueChange = { name = it },
-                label = "Nama",
-                placeholder = "Nama lengkap sesuai KTP",
-                icon = Icons.Default.Person
-            )
+            when(profileState) {
+                is GetAnggotaProfileState.Loading -> Text("Sedang memuat data...")
+                is GetAnggotaProfileState.Success -> {
+                    FieldWithIcon(
+                        value = name.value,
+                        onValueChange = { name.value = it },
+                        label = "Nama",
+                        placeholder = "Nama lengkap sesuai KTP",
+                        icon = Icons.Default.Person
+                    )
 
-            FieldWithIcon(
-                value = nik,
-                onValueChange = { nik = it },
-                label = "NIK",
-                placeholder = "Masukkan NIK Anda",
-                icon = Icons.Default.DoneOutline
-            )
+                    FieldWithIcon(
+                        value = nik.value,
+                        onValueChange = { nik.value = it },
+                        label = "NIK",
+                        placeholder = "Masukkan NIK Anda",
+                        icon = Icons.Default.DoneOutline
+                    )
 
-            FieldWithIcon(
-                value = status,
-                onValueChange = { status = it },
-                label = "Status",
-                placeholder = "Pilih status anggota",
-                icon = Icons.Default.Dataset
-            )
+                    FieldWithIcon(
+                        value = status.value,
+                        onValueChange = { status.value = it },
+                        label = "Status",
+                        placeholder = "Pilih status anggota",
+                        icon = Icons.Default.Dataset
+                    )
 
-            FieldWithIcon(
-                value = birthDate,
-                onValueChange = { birthDate = it },
-                label = "Tanggal Lahir",
-                placeholder = "Pilih tanggal lahir Anda",
-                icon = Icons.Default.CalendarToday
-            )
+                    FieldWithIcon(
+                        value = birthDate.value,
+                        onValueChange = { birthDate.value = it },
+                        label = "Tanggal Lahir",
+                        placeholder = "Pilih tanggal lahir Anda",
+                        icon = Icons.Default.CalendarToday
+                    )
 
-            Text(text = "Jenis Kelamin", fontWeight = FontWeight.SemiBold)
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                TextField(
-                    value = gender,
-                    onValueChange = {},
-                    readOnly = true,
-                    placeholder = { Text("Pilih jenis kelamin Anda") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFE5E5EA),
-                        unfocusedContainerColor = Color(0xFFE5E5EA)
+                    Text(text = "Jenis Kelamin", fontWeight = FontWeight.SemiBold)
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+                        TextField(
+                            value = gender.value,
+                            onValueChange = {},
+                            readOnly = true,
+                            placeholder = { Text("Pilih jenis kelamin Anda") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color(0xFFE5E5EA),
+                                unfocusedContainerColor = Color(0xFFE5E5EA)
 
-                    ),
+                            ),
 
                             modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    genderOptions.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                gender = selectionOption
-                                expanded = false
-                            }
+                                .menuAnchor()
+                                .fillMaxWidth()
                         )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            genderOptions.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    text = { Text(selectionOption) },
+                                    onClick = {
+                                        gender.value = selectionOption
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
+                else -> {}
             }
 
-            FieldWithIcon(
-                value = posyandu,
-                onValueChange = { posyandu = it },
-                label = "Posyandu",
-                placeholder = "Posyandu aktif",
-                icon = Icons.Default.Home
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             Button(
-                onClick = { /* TODO: Simpan data */ },
+                onClick = {
+                    if (!token.isNullOrEmpty()) {
+                        val userId = id
+                        val bearerToken = "Bearer $token"
+                        val request = PortalProfileAnggotaRequest(
+                            nama_anggota_keluarga = name.value,
+                            nik = nik.value,
+                            posisi_keluarga = status.value,
+                            tanggal_lahir = birthDate.value,
+                            jenis_kelamin = gender.value
+                        )
+                        if (userId != null) {
+                            viewModel.updateAnggotaProfile(request, oldNik, bearerToken)
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -195,5 +263,5 @@ fun FieldWithIcon(
 @Preview(showBackground = true)
 @Composable
 fun PreviewEditFamilyMemberScreen() {
-    EditFamilyMemberScreen()
+//    EditFamilyMemberScreen()
 }

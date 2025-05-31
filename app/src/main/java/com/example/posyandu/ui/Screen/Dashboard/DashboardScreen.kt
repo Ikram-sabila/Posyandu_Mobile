@@ -1,5 +1,6 @@
 package com.example.posyandu.ui.Screen.Dashboard
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +12,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -21,19 +25,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Response.PortalBeritaItem
+import com.example.posyandu.Data.Model.Response.PosyanduDetailResponse
 import com.example.posyandu.R
 import com.example.posyandu.ui.Screen.Berita.JadwalMingguIniSection
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
 import com.example.posyandu.ui.Screen.Berita.UiState
 import com.example.posyandu.ui.Screen.Profile.GetProfileState
+import com.example.posyandu.ui.Screen.Profile.PosyanduState
 import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
 import com.example.posyandu.ui.Screen.components.MainScaffold
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -52,11 +62,13 @@ fun DashboardScreen(
 
     val beritaState by portalBeritaViewModel.uiState.collectAsState()
     val profileState by profilViewModel.profileState.collectAsState()
+    val posyanduState by profilViewModel.posyanduState.collectAsState()
 
     LaunchedEffect(Unit) {
         val bearerToken = "Bearer $token"
         portalBeritaViewModel.fetchBerita(bearerToken, no_kk)
         id?.let { profilViewModel.getProfile(bearerToken, it) }
+        no_kk?.let { token?.let { it1 -> profilViewModel.fetchPosyandu(it, it1) } }
     }
 
     MainScaffold(navController = navController, currentRoute = "dashboard") { paddingValues ->
@@ -69,7 +81,7 @@ fun DashboardScreen(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                HelpDeskIcon(onClick = {})
+                HelpDeskIcon(onClick = {}, navController = navController)
 
                 when (profileState) {
                     is GetProfileState.Loading -> Text("Memuat....")
@@ -83,10 +95,21 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 MenuSection(navController)
                 Spacer(modifier = Modifier.height(16.dp))
+                ImageSlider() //kode baru
 
                 when (beritaState) {
-                    is UiState.Loading -> CircularProgressIndicator()
-                    is UiState.Error -> Text("Gagal: ${(beritaState as UiState.Error).message}")
+                    is UiState.Loading -> Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                    is UiState.Error -> {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        JadwalKosongCard()
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     is UiState.Success<*> -> {
                         val data = (beritaState as UiState.Success<List<PortalBeritaItem>>).data
 
@@ -112,10 +135,30 @@ fun DashboardScreen(
                                 date = upComingEvent.tanggal
                             )
                         } else {
+                            Spacer(modifier = Modifier.height(16.dp))
                             JadwalKosongCard()
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
+
+                when (posyanduState) {
+                    is PosyanduState.Loading -> {
+                        // tampilkan loading, misal ProgressBar
+                    }
+                    is PosyanduState.Success -> {
+                        val data = (posyanduState as PosyanduState.Success).data
+                        Log.d("DashboardScreen", "Posyandu data: $data")
+                        InformasiPosko(nama = data.nama_posyandu, alamat = data.alamat, keluarga = data.jumlah_keluarga)
+                    }
+                    is PosyanduState.Error -> {
+                        // tampilkan pesan error
+                    }
+                    else -> {
+                        // opsional, kalau ada case lain
+                    }
+                }
+
             }
         }
     }
@@ -202,7 +245,8 @@ fun HeaderContent(nama: String) {
 fun HelpDeskIcon(
     modifier: Modifier = Modifier,
     iconSize: Dp = 32.dp,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navController: NavController
 ) {
     Row(
         modifier = modifier
@@ -216,7 +260,7 @@ fun HelpDeskIcon(
             contentDescription = "Helpdesk",
             modifier = Modifier
                 .size(iconSize)
-                .clickable { onClick() },
+                .clickable { navController.navigate("Help-Desk") },
             tint = Color.White
         )
     }
@@ -292,6 +336,124 @@ fun JadwalKosongCard() {
                 fontSize = 14.sp,
                 color = Color.Gray
             )
+        }
+    }
+}
+
+@Composable
+fun ImageSlider(
+    imageList: List<Int> = listOf(
+        R.drawable.slider1,
+        R.drawable.slider2,
+        R.drawable.slider3,
+        R.drawable.slider4
+    ),
+    slideDurationMillis: Long = 3000L
+) {
+    val pagerState = rememberPagerState()
+
+    // Auto slide dengan coroutine
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(slideDurationMillis)
+            val nextPage = (pagerState.currentPage + 1) % imageList.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            count = imageList.size,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) { page ->
+            Image(
+                painter = painterResource(id = imageList[page]),
+                contentDescription = "Image $page",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+        }
+    }
+}
+
+
+@Composable
+fun InformasiPosko(nama: String, alamat: String, keluarga: Int) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(
+            text = "Informasi Posko",
+            color = Color(0xFF074A5D),
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White), // background putih
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // shadow lebih nyata
+        ) {
+            Column {
+                // Header dengan background gradient
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(Color(0xFF08607A), Color(0xFF84BBD1))
+                            )
+                        )
+                        .padding(vertical = 12.dp, horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = nama,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                }
+
+                // Konten dengan icon + text
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Filled.LocationOn,
+                            contentDescription = "Alamat",
+                            tint = Color(0xFF08607A),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Alamat", fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(68.dp))
+                        Text(": $alamat", fontSize = 14.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Kader",
+                            tint = Color(0xFF08607A),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Jumlah Keluarga", fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(9.dp))
+                        Text(": $keluarga", fontSize = 14.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
         }
     }
 }

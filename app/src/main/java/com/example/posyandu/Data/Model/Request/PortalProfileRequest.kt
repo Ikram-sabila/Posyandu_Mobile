@@ -20,8 +20,7 @@ data class UpdatePasswordRequest(
 )
 
 class PortalProfileAnggotaRequest(
-    val nama_lengkap: String?,
-    val no_telp: String?,
+    val nama_anggota_keluarga: String?,
     val nik: String?,
     val posisi_keluarga: String?,
     val tanggal_lahir: String?,

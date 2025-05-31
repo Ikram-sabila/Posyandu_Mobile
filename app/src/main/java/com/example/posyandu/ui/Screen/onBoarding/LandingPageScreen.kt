@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -17,10 +18,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.posyandu.R
+import kotlinx.coroutines.delay
 
 @Composable
-fun LandingPageScreen() {
+fun LandingPageScreen(
+    navController: NavController,
+    delayMillis: Long = 3000L
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -33,6 +39,13 @@ fun LandingPageScreen() {
             contentScale = ContentScale.Crop
         )
         LandingPageContent()
+    }
+    
+    LaunchedEffect(Unit) {
+        delay(delayMillis)
+        navController.navigate("Login") {
+            popUpTo("landing-page") { inclusive = true }
+        }
     }
 }
 
@@ -68,5 +81,5 @@ fun LandingPageContent() {
 @Preview(showBackground = true)
 @Composable
 fun LandingPageScreenPreview() {
-    LandingPageScreen()
+//    LandingPageScreen()
 }

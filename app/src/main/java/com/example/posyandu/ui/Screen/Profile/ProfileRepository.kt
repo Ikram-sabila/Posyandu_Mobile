@@ -1,9 +1,11 @@
 package com.example.posyandu.ui.Screen.Profile
 
+import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
 import com.example.posyandu.Data.Model.Request.PortalProfileRequest
 import com.example.posyandu.Data.Model.Request.UpdateEmailRequest
 import com.example.posyandu.Data.Model.Request.UpdatePasswordRequest
 import com.example.posyandu.Data.Model.Response.PortalProfileResponseData
+import com.example.posyandu.Data.Model.Response.PosyanduDetailResponse
 import com.example.posyandu.Data.Model.Response.UpdateEmailResponse
 import com.example.posyandu.Data.Model.Response.UpdatePasswordResponse
 import com.example.posyandu.Data.Model.Response.UserEmailResponse
@@ -92,6 +94,63 @@ class ProfileRepository {
                     Result.success(body)
                 } else {
                     Result.failure(Exception(Exception("Body kosong")))
+                }
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Request failed"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAnggotaProfile(token: String, nik: String): Result<WargaResponse> {
+        return try {
+            val response = ApiClient.apiService.getProfileAnggota("Bearer $token", nik)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(Exception(Exception("Body kosong")))
+                }
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Request failed"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateProfileAnggota(request: PortalProfileAnggotaRequest, nik: String ,token: String): Result<PortalProfileResponseData> {
+        return try {
+            val response = ApiClient.apiService.updateProfileAnggota("Bearer $token", nik, request)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null && body.status == "success") {
+                    Result.success(body.data!!)
+                } else {
+                    Result.failure(Exception(body?.message ?: "Unknown error"))
+                }
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Request failed"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPosyanduDetail(no_kk: String, token: String): Result<PosyanduDetailResponse> {
+        return try {
+            val response = ApiClient.apiService.getPosyandu("Bearer $token", no_kk)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(Exception("Body kosong"))
                 }
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Request failed"

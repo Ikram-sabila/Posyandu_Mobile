@@ -19,13 +19,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 class FAQActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
+
             MaterialTheme {
-                FAQScreen()
+                FAQScreen( navController )
             }
         }
     }
@@ -38,7 +42,9 @@ data class FAQItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FAQScreen() {
+fun FAQScreen(
+    navController: NavController
+) {
     val faqItems = listOf(
         FAQItem(
             question = "Apa itu aplikasi PosyanduCare?",
@@ -65,7 +71,9 @@ fun FAQScreen() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Back action */ }) {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -146,6 +154,6 @@ fun FAQCard(item: FAQItem, isExpanded: Boolean, onClick: () -> Unit) {
 @Composable
 fun PreviewFAQScreen() {
     MaterialTheme {
-        FAQScreen()
+//        FAQScreen()
     }
 }

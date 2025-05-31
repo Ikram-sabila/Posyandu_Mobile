@@ -1,5 +1,6 @@
 package com.example.posyandu.ui.Screen.Berita
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ fun DetailBeritaScreen(
     val userId by UserPreferences.getUserId(context).collectAsState(initial = 0)
 
     val anggotaTerdaftarState by viewModel.uiStateTerdaftar.collectAsState()
+
 
     LaunchedEffect(Unit) {
         val bearerToken = "Bearer $token"
@@ -134,7 +136,7 @@ fun DetailBeritaScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         InfoRow(Icons.Outlined.Place, "Tempat", data.tempat ?: "-")
-                        InfoRow(Icons.Outlined.DateRange, "Tanggal", data.tanggal ?: "-")
+                        InfoRow(Icons.Outlined.DateRange, "Tanggal", formatTanggalIndonesia(data.tanggal) ?: "-")
                         InfoRow(Icons.Outlined.DateRange, "Waktu", data.waktu ?: "-")
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -185,19 +187,28 @@ fun DetailBeritaScreen(
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
+
+                    else -> {}
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                val waktuMulai = data.waktu?.split(" - ")?.getOrNull(0)?.trim() ?: ""
+
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
                 val acaraDateTime = try {
-                    LocalDateTime.parse("${data.tanggal} ${data.waktu}", formatter)
+                    LocalDateTime.parse("${data.tanggal} $waktuMulai", formatter)
                 } catch (e: Exception) {
+                    Log.d("DEBUG", "Gagal parse datetime: ${e.message}")
                     null
                 }
 
                 val now = LocalDateTime.now()
-                val acaraBelumLewat = acaraDateTime?.plusHours(3)?.isAfter(now) == true
+                val acaraBelumLewat = acaraDateTime?.let {
+                    val mulai = it
+                    val selesai = it.plusHours(3)
+                    now.isBefore(selesai)
+                } == true
 
                 if (acaraBelumLewat) {
                     Button(
@@ -218,7 +229,15 @@ fun DetailBeritaScreen(
                         )
                     }
                 }
+//                Log.d("DEBUG", "Acara: $acaraDateTime")
+//                Log.d("DEBUG", "Now: $now")
+//                Log.d("DEBUG", "Tombol muncul: $acaraBelumLewat")
+//
+//                Log.d("DEBUG", "Tanggal: ${data.tanggal}")
+//                Log.d("DEBUG", "Waktu: ${data.waktu}")
             }
+
+            else -> {}
         }
     }
 }

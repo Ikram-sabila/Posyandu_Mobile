@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
@@ -132,6 +136,8 @@ fun UbahEmailScreen(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        var passwordVisible by remember { mutableStateOf(false) }
+
         Text(
             text = "Kata Sandi",
             fontWeight = FontWeight.Medium,
@@ -148,7 +154,15 @@ fun UbahEmailScreen(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFE5E5EA),
                 focusedContainerColor = Color(0xFFE5E5EA)
-            )
+            ),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (passwordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            }
         )
 
         // Tombol Simpan & Batal

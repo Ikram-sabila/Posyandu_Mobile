@@ -14,11 +14,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -105,6 +108,9 @@ fun PasswordContent(
     onRepeatPasswordChange: (String) -> Unit,
     onNext: () -> Unit
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
+    var oldPasswordVisible by remember { mutableStateOf(false) }
+
     PasswordHeader()
     Column(
         modifier = Modifier
@@ -130,9 +136,15 @@ fun PasswordContent(
                     value = password,
                     onValueChange = onPasswordChange,
                     placeholder = "Masukkan password baru",
-                    trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Password") },
                     keyboardType = KeyboardType.Password,
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description = if (passwordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -142,9 +154,15 @@ fun PasswordContent(
                     value = repeatPassword,
                     onValueChange = onRepeatPasswordChange,
                     placeholder = "Ulangi password",
-                    trailingIcon = { Icon(Icons.Default.RemoveRedEye, contentDescription = "Repeat Password") },
                     keyboardType = KeyboardType.Password,
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = if (oldPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (oldPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description = if (oldPasswordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                        IconButton(onClick = { oldPasswordVisible = !oldPasswordVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(34.dp))

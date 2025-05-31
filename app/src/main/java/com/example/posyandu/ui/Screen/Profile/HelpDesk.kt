@@ -20,10 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.posyandu.R
 
 @Composable
-fun HelpDeskScreen() {
+fun HelpDeskScreen(
+    navController: NavController
+) {
     val context = LocalContext.current
 
     Column(
@@ -42,7 +45,7 @@ fun HelpDeskScreen() {
                 contentDescription = "Back",
                 modifier = Modifier
                     .clickable {
-                        // Tambahkan navigasi back di sini jika diperlukan
+                        navController.popBackStack()
                     }
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -102,6 +105,6 @@ fun HelpDeskScreen() {
 @Composable
 fun HelpDeskScreenPreview() {
     MaterialTheme {
-        HelpDeskScreen()
+//        HelpDeskScreen()
     }
 }

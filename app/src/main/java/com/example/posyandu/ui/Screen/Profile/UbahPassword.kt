@@ -30,7 +30,7 @@ fun UbahPasswordScreen(
     navController: NavController,
     viewModel: ProfilViewModel
 ) {
-        val updatePasswordState = viewModel.updatePasswordState
+    val updatePasswordState = viewModel.updatePasswordState
     val context = LocalContext.current
 
     val token by UserPreferences.getToken(context).collectAsState(initial = "")

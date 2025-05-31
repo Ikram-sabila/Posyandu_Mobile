@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
 import com.example.posyandu.Data.Model.Request.PortalProfileRequest
 import com.example.posyandu.Data.Model.Request.UpdateEmailRequest
 import com.example.posyandu.Data.Model.Request.UpdatePasswordRequest
 import com.example.posyandu.Data.Model.Response.PortalProfileResponseData
+import com.example.posyandu.Data.Model.Response.PosyanduDetailResponse
 import com.example.posyandu.Data.Model.Response.UpdateEmailResponse
 import com.example.posyandu.Data.Model.Response.UpdatePasswordResponse
 import com.example.posyandu.Data.Model.Response.WargaResponse
@@ -90,6 +92,53 @@ class ProfilViewModel(private val repository: ProfileRepository) : ViewModel() {
     fun resetPasswordState() {
         updatePasswordState = UpdatePasswordState.Idle
     }
+
+    private val _profileAnggotaState = MutableStateFlow<GetAnggotaProfileState>(GetAnggotaProfileState.Idle)
+    val profileAnggotaState: StateFlow<GetAnggotaProfileState> = _profileAnggotaState.asStateFlow()
+
+    fun getAnggotaProfile(token: String, nik: String) {
+        viewModelScope.launch {
+            _profileAnggotaState.value = GetAnggotaProfileState.Loading
+            val result = repository.getAnggotaProfile(token, nik)
+            _profileAnggotaState.value = when {
+                result.isSuccess -> GetAnggotaProfileState.Success(result.getOrThrow())
+                result.isFailure -> GetAnggotaProfileState.Error(result.exceptionOrNull()?.message ?: "Terjadi kesalahan")
+                else -> GetAnggotaProfileState.Idle
+            }
+        }
+    }
+
+    private val _updateAnggotaState = MutableStateFlow<UpdateProfileState>(UpdateProfileState.Idle)
+    val updateAnggotaState: StateFlow<UpdateProfileState> = _updateAnggotaState.asStateFlow()
+
+    fun updateAnggotaProfile(request: PortalProfileAnggotaRequest, nik: String, token: String) {
+        viewModelScope.launch {
+            _updateAnggotaState.value = UpdateProfileState.Loading
+            val result = repository.updateProfileAnggota(request, nik, token)
+
+            _updateAnggotaState.value = result.fold(
+                onSuccess = { data -> UpdateProfileState.Success(data) },
+                onFailure = { e -> UpdateProfileState.Error(e.message ?: "Terjadi kesalahan") }
+            )
+        }
+    }
+
+    private val _posyanduState = MutableStateFlow<PosyanduState>(PosyanduState.Loading)
+    val posyanduState: StateFlow<PosyanduState> = _posyanduState
+
+    fun fetchPosyandu(noKk: String, token: String) {
+        viewModelScope.launch {
+            _posyanduState.value = PosyanduState.Loading
+            val result = repository.getPosyanduDetail(noKk, token)
+            _posyanduState.value = when {
+                result.isSuccess -> result.getOrNull()?.let {
+                    PosyanduState.Success(it)
+                } ?: PosyanduState.Error("Data posyandu kosong")
+                result.isFailure -> PosyanduState.Error(result.exceptionOrNull()?.message ?: "Terjadi kesalahan")
+                else -> PosyanduState.Error("Unknown error")
+            }
+        }
+    }
 }
 
 sealed class UpdateProfileState {
@@ -106,6 +155,13 @@ sealed class GetProfileState {
     data class Error(val message: String) : GetProfileState()
 }
 
+sealed class GetAnggotaProfileState {
+    object Idle : GetAnggotaProfileState()
+    object Loading : GetAnggotaProfileState()
+    data class Success(val data: WargaResponse) : GetAnggotaProfileState()
+    data class Error(val message: String) : GetAnggotaProfileState()
+}
+
 sealed class UpdateEmailState {
     object Idle : UpdateEmailState()
     object Loading : UpdateEmailState()
@@ -118,4 +174,10 @@ sealed class UpdatePasswordState {
     object Loading : UpdatePasswordState()
     data class Success(val data: UpdatePasswordResponse) : UpdatePasswordState()
     data class Error(val message: String) : UpdatePasswordState()
+}
+
+sealed class PosyanduState {
+    object Loading : PosyanduState()
+    data class Success(val data: PosyanduDetailResponse) : PosyanduState()
+    data class Error(val message: String) : PosyanduState()
 }

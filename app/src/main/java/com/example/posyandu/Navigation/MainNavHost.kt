@@ -36,8 +36,11 @@ import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaScreen
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModel
 import com.example.posyandu.ui.Screen.PortalPeriksa.PortalPeriksaViewModelFactory
 import com.example.posyandu.ui.Screen.PortalPeriksa.RiwayatPemeriksaanScreen
+import com.example.posyandu.ui.Screen.Profile.EditFamilyMemberScreen
 import com.example.posyandu.ui.Screen.Profile.EditProfileScreen
+import com.example.posyandu.ui.Screen.Profile.FAQScreen
 import com.example.posyandu.ui.Screen.Profile.FamilyInfoScreen
+import com.example.posyandu.ui.Screen.Profile.HelpDeskScreen
 import com.example.posyandu.ui.Screen.Profile.PengaturanScreen
 import com.example.posyandu.ui.Screen.Profile.ProfilScreen
 import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
@@ -49,13 +52,21 @@ import com.example.posyandu.ui.Screen.Register.CompleteDataScreen
 import com.example.posyandu.ui.Screen.Register.PasswordScreen
 import com.example.posyandu.ui.Screen.Register.RegisterScreen
 import com.example.posyandu.ui.Screen.Register.RegisterViewModel
+import com.example.posyandu.ui.Screen.onBoarding.LandingPageScreen
+import com.example.posyandu.ui.Screen.onBoarding.OnBoardingScreen
 
 @Composable
 fun MainNavHost(navController: NavHostController = rememberNavController()) {
     val registerViewModel: RegisterViewModel = viewModel(LocalContext.current as ComponentActivity)
     val anggotaViewModel: AnggotaKeluargaViewModel = viewModel(LocalContext.current as ComponentActivity)
 
-    NavHost(navController = navController, startDestination = "email") {
+    NavHost(navController = navController, startDestination = "landing-page") {
+        composable("landing-page") {
+            LandingPageScreen(navController = navController)
+        }
+        composable("onboarding") { 
+            OnBoardingScreen(navController = navController)
+        }
         composable("email") {
             RegisterScreen(navController, registerViewModel)
         }
@@ -179,7 +190,7 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             val repository = ProfileRepository()
             val factory = ProfileViewModelFactory(repository)
             val viewModel: ProfilViewModel = viewModel(factory = factory)
-            EditProfileScreen(viewModel = viewModel)
+            EditProfileScreen(viewModel = viewModel, navController = navController)
         }
         composable("pengaturan") {
             PengaturanScreen(navController)
@@ -234,6 +245,24 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             val viewModel: PortalPeriksaViewModel = viewModel(factory = factory)
 
             FamilyInfoScreen(navController, viewModel = viewModel)
+        }
+        composable(
+            "profil-anggota/{nik}",
+            arguments = listOf(navArgument("nik") { type = NavType.StringType },)
+        ) {backStackEntry ->
+            val nik = backStackEntry.arguments?.getString("nik") ?: ""
+
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+
+            EditFamilyMemberScreen(navController = navController, viewModel = viewModel, oldNik = nik)
+        }
+        composable("FAQ") {
+            FAQScreen(navController = navController)
+        }
+        composable("Help-Desk") {
+            HelpDeskScreen(navController = navController)
         }
     }
 }
