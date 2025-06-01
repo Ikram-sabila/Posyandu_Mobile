@@ -1,10 +1,14 @@
 package com.example.posyandu.ui.Screen.Profile
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
 import com.example.posyandu.Data.Model.Request.PortalProfileRequest
 import com.example.posyandu.Data.Model.Request.UpdateEmailRequest
@@ -14,6 +18,8 @@ import com.example.posyandu.Data.Model.Response.PosyanduDetailResponse
 import com.example.posyandu.Data.Model.Response.UpdateEmailResponse
 import com.example.posyandu.Data.Model.Response.UpdatePasswordResponse
 import com.example.posyandu.Data.Model.Response.WargaResponse
+import com.example.posyandu.Data.Remote.Client.ApiClient.apiService
+import com.example.posyandu.Data.Remote.Service.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -136,6 +142,26 @@ class ProfilViewModel(private val repository: ProfileRepository) : ViewModel() {
                 } ?: PosyanduState.Error("Data posyandu kosong")
                 result.isFailure -> PosyanduState.Error(result.exceptionOrNull()?.message ?: "Terjadi kesalahan")
                 else -> PosyanduState.Error("Unknown error")
+            }
+        }
+    }
+
+    private val _logoutState = MutableStateFlow<Result<Boolean>?>(null)
+    val logoutState: StateFlow<Result<Boolean>?> = _logoutState
+
+    fun logout(context: Context, token: String) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.logout(token)
+                if (response.isSuccessful) {
+                    UserPreferences.clearUserData(context)
+                    _logoutState.value = Result.success(true)
+                } else {
+                    _logoutState.value = Result.failure(Exception("Gagal logout dari server"))
+                }
+                Log.d("LogoutDebug", "Response: ${response.code()}, isSuccess: ${response.isSuccessful}")
+            } catch (e: Exception) {
+                _logoutState.value = Result.failure(e)
             }
         }
     }

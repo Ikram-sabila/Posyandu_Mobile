@@ -184,7 +184,11 @@ fun MainNavHost(navController: NavHostController = rememberNavController()) {
             DetailAntrianScreen(navController, nomorAntrian)
         }
         composable("profil") {
-            ProfilScreen(navController)
+            val repository = ProfileRepository()
+            val factory = ProfileViewModelFactory(repository)
+            val viewModel: ProfilViewModel = viewModel(factory = factory)
+
+            ProfilScreen(navController, viewModel)
         }
         composable("edit-profile") {
             val repository = ProfileRepository()

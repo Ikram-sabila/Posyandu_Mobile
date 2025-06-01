@@ -1,5 +1,7 @@
 package com.example.posyandu.ui.Screen.Profile
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.platform.LocalContext
@@ -59,15 +62,39 @@ import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 
 
 @Composable
-fun ProfilScreen(navController: NavController) {
+fun ProfilScreen(
+    navController: NavController,
+    viewModel: ProfilViewModel
+) {
     val context = LocalContext.current
 
     val nama by UserPreferences.getNama(context = context).collectAsState(initial = "Lidia")
     val email by UserPreferences.getEmail(context = context).collectAsState(initial = "Sola")
     val no_telp by UserPreferences.getNoTelp(context = context).collectAsState(initial = "123")
+
+    val token by UserPreferences.getToken(context = context).collectAsState(initial = "")
+
+    val logOutState by viewModel.logoutState.collectAsState()
+
+    LaunchedEffect(logOutState) {
+        logOutState?.let {result ->
+            if (result.isSuccess) {
+                navController.navigate("Login")
+            } else {
+                Toast.makeText(
+                    context,
+                    result.exceptionOrNull()?.message ?: "Logout gagal",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
 
     MainScaffold(
         navController = navController,
@@ -232,7 +259,10 @@ fun ProfilScreen(navController: NavController) {
                 ProfileMenuItem(
                     icon = Icons.Default.ExitToApp,
                     text = "Keluar",
-                    onClick = {}
+                    onClick = {
+                        token?.let { viewModel.logout(context, it) }
+                        Log.d("LogoutDebug", "Token: $token")
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(34.dp))
@@ -249,7 +279,10 @@ fun ProfileMenuItem(icon: ImageVector, text: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFF8F9FA))
-            .clickable { onClick() }
+            .clickable (
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(color = Color.Gray)
+            ){ onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

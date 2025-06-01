@@ -183,4 +183,9 @@ interface ApiService {
         @Header("Authorization")  bearerToken: String,
         @Path("no_kk") no_kk: String
     ): Response<PosyanduDetailResponse>
+
+    @POST("api/auth/warga/logout")
+    suspend fun logout(
+        @Header("Authorization") token: String
+    ): Response<Unit>
 }

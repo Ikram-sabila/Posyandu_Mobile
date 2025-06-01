@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
+import com.example.posyandu.ui.Screen.Berita.formatTanggalIndonesia
 
 @Composable
 fun CardRiwayatItem(
@@ -41,7 +42,7 @@ fun CardRiwayatItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = date ?: "-", fontWeight = FontWeight.Bold, color = Color(0xFF1A3C40))
+            Text(text = date?.let { formatTanggalIndonesia(it) } ?: "-", fontWeight = FontWeight.Bold, color = Color(0xFF1A3C40))
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -52,7 +53,7 @@ fun CardRiwayatItem(
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.DateRange,
+                            imageVector = Icons.AutoMirrored.Filled.Article,
                             contentDescription = null,
                             tint = Color.Gray,
                             modifier = Modifier.size(16.dp)

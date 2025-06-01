@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Dataset
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
@@ -26,6 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.example.posyandu.Data.Local.UserPreferences
 import com.example.posyandu.Data.Model.Request.PortalProfileAnggotaRequest
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class EditFamilyMemberActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +54,10 @@ fun EditFamilyMemberScreen(
     val name = remember { mutableStateOf("") }
     val nik = remember { mutableStateOf("") }
     val status = remember { mutableStateOf("") }
+
     val birthDate = remember { mutableStateOf("") }
+    val tanggalLahir = remember { mutableStateOf<LocalDate?>(null) }
+
     val gender = remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
@@ -57,6 +66,25 @@ fun EditFamilyMemberScreen(
 
     val profileState by viewModel.profileAnggotaState.collectAsState()
     val anggotaProfileState by viewModel.updateAnggotaState.collectAsState()
+
+    val dateDialogState = rememberMaterialDialogState()
+
+    MaterialDialog(
+        dialogState = dateDialogState,
+        buttons = {
+            positiveButton(text = "Ok")
+            negativeButton(text = "Cancel")
+        }
+    ) {
+        datepicker(
+            initialDate = tanggalLahir.value ?: LocalDate.now(),
+            title = "Pilih Tanggal"
+        ) { date ->
+            tanggalLahir.value = date
+            birthDate.value = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            Toast.makeText(context, "Tanggal dipilih: ${birthDate.value}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (!token.isNullOrEmpty()) {
@@ -72,6 +100,11 @@ fun EditFamilyMemberScreen(
             nik.value = profile.nik ?: "-"
             status.value = profile.posisi_keluarga ?: "-"
             birthDate.value = profile.tanggal_lahir ?: "-"
+            tanggalLahir.value = try {
+                LocalDate.parse(profile.tanggal_lahir, DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            } catch (e: Exception) {
+                null
+            }
             gender.value = profile.jenis_kelamin ?: "-"
         }
     }
@@ -146,13 +179,28 @@ fun EditFamilyMemberScreen(
                         icon = Icons.Default.Dataset
                     )
 
-                    FieldWithIcon(
+                    CustomFormField(
+                        label = "Tanggal Lahir",
                         value = birthDate.value,
                         onValueChange = { birthDate.value = it },
-                        label = "Tanggal Lahir",
                         placeholder = "Pilih tanggal lahir Anda",
-                        icon = Icons.Default.CalendarToday
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                dateDialogState.show()
+                            }) {
+                                Icon(Icons.Default.DateRange, contentDescription = null)
+                            }
+                        },
+                        readOnly = true
                     )
+
+//                    FieldWithIcon(
+//                        value = birthDate.value,
+//                        onValueChange = { birthDate.value = it },
+//                        label = "Tanggal Lahir",
+//                        placeholder = "Pilih tanggal lahir Anda",
+//                        icon = Icons.Default.CalendarToday
+//                    )
 
                     Text(text = "Jenis Kelamin", fontWeight = FontWeight.SemiBold)
                     ExposedDropdownMenuBox(
@@ -207,7 +255,7 @@ fun EditFamilyMemberScreen(
                             nama_anggota_keluarga = name.value,
                             nik = nik.value,
                             posisi_keluarga = status.value,
-                            tanggal_lahir = birthDate.value,
+                            tanggal_lahir = tanggalLahir.value?.format(DateTimeFormatter.ISO_LOCAL_DATE) ?: "",
                             jenis_kelamin = gender.value
                         )
                         if (userId != null) {
