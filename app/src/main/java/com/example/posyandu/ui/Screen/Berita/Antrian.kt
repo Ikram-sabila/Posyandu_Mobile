@@ -120,7 +120,13 @@ fun KonfirmasiPendaftaranScreen(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Nomor Antrian", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    "Nomor Antrian",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 val nomorAntrian = when (beritaAntrianState) {
                     is UiStateAntrian.Success -> (beritaAntrianState as UiStateAntrian.Success).data.nomor
@@ -145,7 +151,11 @@ fun KonfirmasiPendaftaranScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Yakin melanjutkan pendaftaran?", textAlign = TextAlign.Center)
+                Text(
+                    "Yakin melanjutkan pendaftaran?",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
         }
 
@@ -269,6 +279,33 @@ fun KonfirmasiPendaftaranScreen(
 }
 
 
+//@Composable
+//fun PilihAnggotaCard(
+//    nama: String,
+//    posisi: String,
+//    nik: String,
+//    selected: Boolean,
+//    onClick: () -> Unit
+//) {
+//    val backgroundColor = if (selected) Color(0xFFE0F7FA) else Color.White
+//
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { onClick() },
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+//        elevation = CardDefaults.cardElevation(2.dp)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(nama, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF006064))
+//            Spacer(modifier = Modifier.height(4.dp))
+//            Text("Posisi: $posisi", fontSize = 14.sp)
+//            Text("NIK: $nik", fontSize = 14.sp)
+//        }
+//    }
+//}
+
 @Composable
 fun PilihAnggotaCard(
     nama: String,
@@ -288,13 +325,36 @@ fun PilihAnggotaCard(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(nama, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF006064))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Posisi: $posisi", fontSize = 14.sp)
-            Text("NIK: $nik", fontSize = 14.sp)
+            Text(
+                text = nama,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color(0xFF006064)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            InfoRow(label = "Posisi", value = posisi)
+            InfoRow(label = "NIK", value = nik)
         }
     }
 }
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(modifier = Modifier.padding(vertical = 2.dp)) {
+        Text(
+            text = "$label",
+            fontSize = 14.sp,
+            modifier = Modifier.width(60.dp) // pastikan cukup untuk label terpanjang
+        )
+        Text(
+            text = ": $value",
+            fontSize = 14.sp
+        )
+    }
+}
+
+
 
 @Composable
 fun DetailRow(icon: ImageVector, label: String, value: String) {

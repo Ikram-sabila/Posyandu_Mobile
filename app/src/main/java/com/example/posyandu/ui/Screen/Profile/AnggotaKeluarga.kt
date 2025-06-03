@@ -8,7 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -52,7 +54,6 @@ fun FamilyInfoScreen(
     val error by viewModel.errorMessage.collectAsState()
 
     val context = LocalContext.current
-
     val token by UserPreferences.getToken(context).collectAsState(initial = "")
     val no_kk by UserPreferences.getNoKK(context).collectAsState(initial = "")
 
@@ -68,7 +69,7 @@ fun FamilyInfoScreen(
             TopAppBar(
                 title = { Text("Informasi Anggota Keluarga") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate("profil") }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Kembali"
@@ -78,46 +79,71 @@ fun FamilyInfoScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
+                .fillMaxSize()
         ) {
-            if (isLoading) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (error != null) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Terjadi kesalahan: $error")
-                }
-            } else {
-                if (anggota.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Belum ada pemeriksaan untuk anggota yang dipilih.",
-                            color = Color.Gray,
-                            fontSize = 16.sp
-                        )
-                    }
-                } else {
-                    LazyColumn {
-                        items(anggota) { item ->
-                            FamilyMemberCard(
-                                name = item.nama_anggota_keluarga,
-                                role = item.posisi_keluarga,
-                                nik = item.anggota_keluarga_nik,
-                                onClick = { nik ->
-                                    navController.navigate("profil-anggota/$nik")
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
+            when {
+                isLoading -> {
+                    item {
+                        Box(Modifier.fillParentMaxHeight(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
                         }
                     }
+                }
+
+                error != null -> {
+                    item {
+                        Box(Modifier.fillParentMaxHeight(), contentAlignment = Alignment.Center) {
+                            Text("Terjadi kesalahan: $error")
+                        }
+                    }
+                }
+
+                anggota.isEmpty() -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxHeight(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Belum ada pemeriksaan untuk anggota yang dipilih.",
+                                color = Color.Gray,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    items(anggota) { item ->
+                        FamilyMemberCard(
+                            name = item.nama_anggota_keluarga,
+                            role = item.posisi_keluarga,
+                            nik = item.anggota_keluarga_nik,
+                            onClick = { nik ->
+                                navController.navigate("profil-anggota/$nik")
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+            }
+
+            item {
+                val kk by UserPreferences.getNoKK(context).collectAsState(initial = "")
+                OutlinedButton(
+                    onClick = { navController.navigate("anggota/$kk") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF005B71))
+                ) {
+                    Text("Tambah Anggota", fontWeight = FontWeight.Bold)
                 }
             }
         }

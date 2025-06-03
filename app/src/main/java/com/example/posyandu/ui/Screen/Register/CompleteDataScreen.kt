@@ -139,7 +139,7 @@ fun CompleteDataScreen(
             }
 
             viewModel.saveCompleteData(nik, no_kk, jenisKelamin!!, tanggalLahir, poskoPosyandu!!.id )
-            viewModel.register(password.value)
+            viewModel.register(password.value, context)
         },
         onSuccessRegister = onSuccessRegister,
         viewModel = viewModel

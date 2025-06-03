@@ -37,6 +37,7 @@ import com.example.posyandu.R
 import com.example.posyandu.ui.Screen.Berita.JadwalMingguIniSection
 import com.example.posyandu.ui.Screen.Berita.PortalBeritaViewModel
 import com.example.posyandu.ui.Screen.Berita.UiState
+import com.example.posyandu.ui.Screen.Berita.formatTanggalIndonesia
 import com.example.posyandu.ui.Screen.Profile.GetProfileState
 import com.example.posyandu.ui.Screen.Profile.PosyanduState
 import com.example.posyandu.ui.Screen.Profile.ProfilViewModel
@@ -132,7 +133,11 @@ fun DashboardScreen(
                             JadwalMingguIniSection(
                                 judul = upComingEvent.judul,
                                 location = upComingEvent.tempat.orEmpty(),
-                                date = upComingEvent.tanggal
+                                date = formatTanggalIndonesia(upComingEvent.tanggal),
+                                onDetailClick = {
+                                    val id = upComingEvent.id
+                                    navController.navigate("berita-detail/$id")
+                                }
                             )
                         } else {
                             Spacer(modifier = Modifier.height(16.dp))

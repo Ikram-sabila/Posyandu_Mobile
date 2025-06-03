@@ -1,8 +1,10 @@
 package com.example.posyandu.ui.Screen.Register
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.posyandu.Data.Local.UserPreferences.clearUserData
 import com.example.posyandu.Data.Model.Request.JenisKelamin
 import com.example.posyandu.Data.Model.Request.RegisterRequest
 import com.example.posyandu.Data.Model.Response.PosyanduItem
@@ -57,8 +59,9 @@ open class RegisterViewModel : ViewModel() {
         this.poskoId = posko
     }
 
-    fun register(password: String) {
+    fun register(password: String, context: Context) {
         viewModelScope.launch {
+            clearUserData(context)
             _registerState.value = RegisterState.Loading
 
             try {
